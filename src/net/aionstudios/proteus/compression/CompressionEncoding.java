@@ -20,7 +20,6 @@ public enum CompressionEncoding {
 	public static CompressionEncoding forAcceptHeader(String acceptHeader, boolean brotliEnabled) {
 		if(acceptHeader != null) {
 			if(brotliEnabled&&acceptHeader.contains("br")&&!acceptHeader.contains("br;q=0")&&!acceptHeader.contains("br; q=0")){
-				// TODO add natives
 				return CompressionEncoding.BR;
 			} else if(acceptHeader.contains("gzip")&&!acceptHeader.contains("gzip;q=0")&&!acceptHeader.contains("gzip; q=0")){
 				return CompressionEncoding.GZIP;

@@ -2,139 +2,105 @@ package net.aionstudios.proteus.request;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.RequestContext;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-
-import com.sun.net.httpserver.HttpExchange;
 
 import net.aionstudios.proteus.api.util.RequestUtils;
-import net.aionstudios.proteus.compression.CompressionEncoding;
+import net.aionstudios.proteus.header.ProteusHttpHeaders;
 
 public class ProteusHttpRequest {
 	
-	private String host;
+	private InputStream inputStream;
+	
+	private String remoteAddress;
+	
+	private String method;
+	private String httpVersion;
 	private String path;
+	private String host;
 	
-	private ParameterMap urlParameters;
-	private ParameterMap postParameters;
-	private ParameterMap cookies;
+	private ProteusHttpHeaders headers;
 	
-	private Set<MultipartFile> files;
+	private RequestBody body;
+	private ParameterMap<String> urlParameters;
+	private ParameterMap<String> cookies;
 	
-	private CompressionEncoding compressionEncoding;
-	
-	private HttpExchange exchange;
-	
-	public ProteusHttpRequest(HttpExchange exchange, CompressionEncoding compression) {
-		resolveURI(exchange.getRequestURI().toString());
-		resolveBody(exchange);
-		compressionEncoding = compression;
-		host = exchange.getRequestHeaders().getFirst("Host").split(":")[0];
-		this.exchange = exchange;
+	public ProteusHttpRequest(Socket client, String method, String httpVersion, String path, String host, ProteusHttpHeaders headers) {
+		try {
+			this.inputStream = client.getInputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		this.remoteAddress = client.getInetAddress().toString();
+		this.method = method;
+		this.httpVersion = httpVersion;
+		this.host = host;
+		this.headers = headers;
+		resolveURI(path);
+		if (method.equals("POST")) {
+			body = RequestBody.createRequestBody(this, inputStream);
+		}
+		cookies = headers.hasHeader("Cookie") ? headers.getHeader("Cookie").getFirst().getParams() : null;
+		if (body != null) {
+			ParameterMap<String> post = body.getBodyParams();
+			for (String s : post.keySet()) {
+				System.out.println(s + ": " + post.getParameter(s));
+			}
+		}
 	}
 	
-	HttpExchange getHttpExchange() {
-		return exchange;
-	}
-	
-	private void resolveURI(String uri) {
+	private void resolveURI(String path) {
 		String[] requestSplit;
-		if(uri.contains("?")) {
-			requestSplit = uri.split("\\?", 2);
+		if(path.contains("?")) {
+			requestSplit = path.split("\\?", 2);
 		} else {
 			requestSplit = new String[2];
-			requestSplit[0] = uri.toString();
+			requestSplit[0] = path.toString();
 			requestSplit[1] = "";
 		}
 		Map<String, String> getP = new HashMap<String, String>();
 		if(requestSplit.length>1) {
-			getP = RequestUtils.resolveGetQuery(requestSplit[1]);
+			getP = RequestUtils.resolveQueryString(requestSplit[1]);
 		}
-		path = requestSplit[0];
-		urlParameters = new ParameterMap(getP);
+		this.path = requestSplit[0];
+		urlParameters = new ParameterMap<>(getP);
+	}
+
+	public String getMethod() {
+		return method;
 	}
 	
-	private void resolveBody(HttpExchange he) {
-		final String cT = he.getRequestHeaders().containsKey("Content-Type") ? he.getRequestHeaders().getFirst("Content-Type") : "text/html";
-		if(cT.contains("multipart/form-data")||cT.contains("multipart/stream")) {
-			DiskFileItemFactory d = new DiskFileItemFactory();
-			try {
-				ServletFileUpload up = new ServletFileUpload(d);
-				List<FileItem> result = up.parseRequest(new RequestContext() {
-
-					@Override
-					public String getCharacterEncoding() {
-						return "UTF-8";
-					}
-
-					@Override
-					public int getContentLength() {
-						return 0; //tested to work with 0 as return
-					}
-
-					@Override
-					public String getContentType() {
-						return cT;
-					}
-
-					@Override
-					public InputStream getInputStream() throws IOException {
-						return he.getRequestBody();
-					}
-
-				});
-				for(FileItem fi : result) {
-					if(!fi.isFormField()) {
-			        	files.add(new MultipartFile(fi));
-			        } else {
-			        	if (postParameters == null) postParameters = new ParameterMap(new HashMap<>());
-			        	postParameters.putParameter(fi.getFieldName(), fi.getString());
-			        }
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			if(he.getRequestMethod().equalsIgnoreCase("POST")) {
-				postParameters = new ParameterMap(RequestUtils.resolvePostQuery(he));
-			}
-		}
-		cookies = new ParameterMap(RequestUtils.resolveCookies(he));
+	public String getHttpVersion() {
+		return httpVersion;
+	}
+	
+	public String getPath() {
+		return path;
 	}
 	
 	public String getHost() {
 		return host;
 	}
 
-	public String getPath() {
-		return path;
-	}
-
-	public ParameterMap getUrlParameters() {
+	public ParameterMap<String> getUrlParameters() {
 		return urlParameters;
 	}
 
-	public ParameterMap getPostParameters() {
-		return postParameters;
+	public RequestBody getRequestBody() {
+		return body;
 	}
 
-	public ParameterMap getCookies() {
+	public ParameterMap<String> getCookies() {
 		return cookies;
 	}
-
-	public Set<MultipartFile> getFiles() {
-		return files;
+	
+	public ProteusHttpHeaders getHeaders() {
+		return headers;
 	}
-
-	public CompressionEncoding getCompressionEncoding() {
-		return compressionEncoding;
+	
+	public String getRemoteAddress() {
+		return remoteAddress;
 	}
 
 }

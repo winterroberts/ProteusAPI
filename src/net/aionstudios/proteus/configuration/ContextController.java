@@ -2,62 +2,82 @@ package net.aionstudios.proteus.configuration;
 
 import net.aionstudios.hestia.BinaryNearestMap;
 import net.aionstudios.hestia.ComparablePair;
+import net.aionstudios.proteus.api.context.ProteusContext;
 import net.aionstudios.proteus.api.context.ProteusHttpContext;
 import net.aionstudios.proteus.api.context.ProteusWebSocketContext;
 import net.aionstudios.proteus.api.util.URLUtils;
 
-public class ContextController<T> {
+public class ContextController {
 
-	private BinaryNearestMap<String, T> contexts;
+	private BinaryNearestMap<String, ProteusHttpContext> httpContexts;
+	private BinaryNearestMap<String, ProteusWebSocketContext> webSocketContexts;
 	
-	private T defaultContext = null;
+	private ProteusHttpContext defaultHttpContext = null;
+	private ProteusWebSocketContext defaultWebSocketContext = null;
 	
-	public static ContextController<ProteusHttpContext> newInstance(ProteusHttpContext... contexts) {
-		ContextController<ProteusHttpContext> controller = new ContextController<>();
-		for (ProteusHttpContext c : contexts) {
-			for (String path : c.getPaths())	{
-				if (URLUtils.isValidPathSegment(path)) {
-					controller.contexts.put(path, c);
-				}
-			}
-		}
-		return controller;
+	public static ContextController newInstance() {
+		return new ContextController();
 	}
 	
-	public static ContextController<ProteusWebSocketContext> newInstance(ProteusWebSocketContext... contexts) {
-		ContextController<ProteusWebSocketContext> controller = new ContextController<>();
-		for (ProteusWebSocketContext c : contexts) {
-			for (String path : c.getPaths())	{
-				if (URLUtils.isValidPathSegment(path)) {
-					controller.contexts.put(path, c);
-				}
-			}
-		}
-		return controller;
+	public BinaryNearestMap<String, ProteusHttpContext> getHttpContexts() {
+		return httpContexts;
 	}
 	
-	public BinaryNearestMap<String, T> getContexts() {
-		return contexts;
+	public BinaryNearestMap<String, ProteusWebSocketContext> getWebSocketContexts() {
+		return webSocketContexts;
 	}
 	
-	public T getPathContext(String path) {
-		ComparablePair<String, T> context = contexts.get(contexts.nearestMatch(path));
-		if (path.startsWith(context.getKey())) {
+	public ProteusHttpContext getHttpContext(String path) {
+		ComparablePair<String, ProteusHttpContext> context = httpContexts.get(httpContexts.nearestMatch(path));
+		if (context != null && path.startsWith(context.getKey())) {
 			return context.getValue();
 		}
 		return null;
 	}
 	
-	public T getDefault() {
-		return defaultContext;
+	public ProteusWebSocketContext getWebSocketContext(String path) {
+		ComparablePair<String, ProteusWebSocketContext> context = webSocketContexts.get(webSocketContexts.nearestMatch(path));
+		if (context != null && path.startsWith(context.getKey())) {
+			return context.getValue();
+		}
+		return null;
 	}
 	
-	public void setDefault(T context) {
-		this.defaultContext = context;
+	public ProteusHttpContext getHttpDefault() {
+		return defaultHttpContext;
+	}
+	
+	public ProteusWebSocketContext getWebSocketDefault() {
+		return defaultWebSocketContext;
+	}
+	
+	public void setHttpDefault(ProteusHttpContext context) {
+		this.defaultHttpContext = context;
+	}
+	
+	public void setWebSocketDefault(ProteusWebSocketContext context) {
+		this.defaultWebSocketContext = context;
+	}
+	
+	public void setHttpContext(ProteusHttpContext context) {
+		for (String path : context.getPaths())	{
+			if (URLUtils.isValidPathSegment(path)) {
+				httpContexts.put(path, context);
+			}
+		}
+	}
+	
+	public void setWebSocketContext(ProteusWebSocketContext context) {
+		for (String path : context.getPaths())	{
+			if (URLUtils.isValidPathSegment(path)) {
+				webSocketContexts.put(path, context);
+			}
+		}
 	}
 	
 	private ContextController() {
-		this.contexts = new BinaryNearestMap<>();
+		this.httpContexts = new BinaryNearestMap<>();
+		this.webSocketContexts = new BinaryNearestMap<>();
 	}
 	
 }

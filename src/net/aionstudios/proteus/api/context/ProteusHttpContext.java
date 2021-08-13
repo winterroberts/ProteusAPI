@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.aionstudios.proteus.request.ProteusHttpRequest;
+import net.aionstudios.proteus.response.ProteusHttpResponse;
 
 @ProteusContext(path="/")
 public abstract class ProteusHttpContext {
@@ -59,6 +60,6 @@ public abstract class ProteusHttpContext {
 	}
 	
 	// TODO 
-	public abstract void handle(ProteusHttpRequest request);
+	public abstract void handle(ProteusHttpRequest request, ProteusHttpResponse response);
 
 }

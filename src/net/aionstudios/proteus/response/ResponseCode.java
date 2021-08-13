@@ -34,7 +34,7 @@ public enum ResponseCode {
 	UNUATHORIZED(401, "Unauthorized", "Access to the resource requires authentication."),
 	FORBIDDEN(403, "Forbidden", "The server will not allow the client to access this resource."),
 	NOT_FOUND(404, "Not Found", "The requested resource, was not found on this server."),
-	METHOD_NOT_ALLOWED(405, "Method Not Allowed", "The request is disabled by the server or doesn't exist."),
+	METHOD_NOT_ALLOWED(405, "Method Not Allowed", "The request method is disabled by the server or doesn't exist."),
 	NOT_ACCEPTABLE(406, "Not Acceptable", "The server couldn't meet client content expectations."),
 	PROXY_AUTHETICATION_REQUIRED(407, "Proxy Authentication Required", "Access to the resource requires authentication through a proxy."),
 	REQUEST_TIMEOUT(408, "Request Timeout", "The server couldn't complete and transmit the resource in a reasonable time."),
@@ -73,6 +73,8 @@ public enum ResponseCode {
 	 */
 	ResponseCode(int value, String name, String desc) {
 		this.value = value;
+		this.name = name;
+		this.desc = desc;
 	}
 
 	/**
