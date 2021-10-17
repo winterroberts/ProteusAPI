@@ -10,9 +10,13 @@ public class ProteusHeader {
 	
 	protected ProteusHeader(String key, List<String> values) {
 		this.key = key;
+		boolean noSplit = false;
+		if (key.equals("Expires")) {
+			noSplit = true;
+		}
 		this.values = new LinkedList<>();
 		for (String s : values) {
-			this.values.add(new HeaderValue(s));
+			this.values.add(new HeaderValue(s, noSplit));
 		}
 	}
 	
@@ -48,6 +52,19 @@ public class ProteusHeader {
 			return values.get(values.size()-1);
 		}
 		return null;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof String) return key.equals(o);
+		if (!(o instanceof ProteusHeader)) return false;
+		ProteusHeader other = (ProteusHeader) o;
+		return key.equals(other.key);
+	}
+	
+	@Override
+	public int hashCode() {
+		return key.hashCode();
 	}
 	
 }

@@ -9,21 +9,16 @@ import java.util.Set;
 
 public class ProteusHttpHeaders {
 	
-	private Map<String, List<String>> headers;
+	private Map<String, ProteusHeader> headers;
 	
 	protected ProteusHttpHeaders(ProteusHeaderBuilder builder) {
 		headers = new HashMap<>();
 		for (Entry<String, List<String>> header : builder.getHeaders().entrySet()) {
-			List<String> into;
-			if (!headers.containsKey(header.getKey())) {
-				into = new LinkedList<>();
-				headers.put(header.getKey(), into);
-			} else {
-				into = headers.get(header.getKey());
-			}
+			List<String> into = new LinkedList<>();
 			for (String s : header.getValue()) {
-				into.add(s);
+				into.add(s.trim());
 			}
+			headers.put(header.getKey(), new ProteusHeader(header.getKey(), into));
 		}
 	}
 	
@@ -37,7 +32,7 @@ public class ProteusHttpHeaders {
 	
 	public ProteusHeader getHeader(String key) {
 		if (headers.containsKey(key)) {
-			return new ProteusHeader(key, headers.get(key));
+			return headers.get(key);
 		}
 		return null;
 	}

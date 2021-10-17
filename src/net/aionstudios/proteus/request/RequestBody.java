@@ -6,16 +6,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.aionstudios.proteus.api.util.StreamUtils;
+import net.aionstudios.proteus.compression.CompressionEncoding;
+import net.aionstudios.proteus.compression.Compressor;
 import net.aionstudios.proteus.header.HeaderValue;
 import net.aionstudios.proteus.header.ProteusHeaderBuilder;
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
+import net.aionstudios.proteus.header.QualityValue;
 
 public class RequestBody {
 	
 	private ParameterMap<String> bodyData;
 	private ParameterMap<MultipartFileStream> fileData;
+	
+	private String contentType;
+	private String rawText;
+	private MultipartFileStream rawFile;
 	
 	private boolean resume;
 
@@ -23,6 +32,7 @@ public class RequestBody {
 		bodyData = new ParameterMap<>();
 		fileData = new ParameterMap<>();
 		resume = false;
+		contentType = null;
 	}
 	
 	public ParameterMap<String> getBodyParams() {
@@ -40,6 +50,7 @@ public class RequestBody {
 			if (headers.hasHeader("Content-Length")) {
 				HeaderValue contentType = headers.getHeader("Content-Type").getLast();
 				int contentLength = Integer.parseInt(headers.getHeader("Content-Length").getLast().getValue());
+				body.contentType = contentType.getValue();
 				switch(contentType.getValue()) {
 				case "application/x-www-form-urlencoded":
 					body.contentFormUrlEncoded(contentLength, inputStream);
@@ -47,8 +58,44 @@ public class RequestBody {
 				case "multipart/form-data":
 					body.contentFormData(inputStream, contentType, null);
 					break;
+				case "application/json":
+				case "text/plain":
+				case "text/html":
+				case "text/xml":
+					body.contentRaw(headers, contentLength, inputStream);
+					break;
 				default:
-					// TODO Error on bad headers
+					body.fileRaw(headers, contentLength, inputStream);
+				}
+			} else if (headers.hasHeader("Transfer-Encoding")) {
+				HeaderValue contentType = headers.getHeader("Content-Type").getLast();
+				body.contentType = contentType.getValue();
+				try {
+					byte[] file = body.readFileAsChunks(headers, inputStream);
+					List<CompressionEncoding> decompressOrder = new LinkedList<>();
+					if (headers.hasHeader("Content-Encoding")) {
+						List<HeaderValue> contentEncoding = headers.getHeader("Content-Encoding").getValues();
+						for (int i = contentEncoding.size() - 1; i >= 0; i--) {
+							HeaderValue hv = contentEncoding.get(i);
+							List<QualityValue> qv = hv.getValues();
+							for (int j = qv.size()-1; i >= 0; i--) {
+								CompressionEncoding ce = CompressionEncoding.forName(qv.get(j).getValue());
+								if (ce != CompressionEncoding.NONE) {
+									if (!decompressOrder.contains(ce)) {
+										decompressOrder.add(ce);
+									} else {
+										// TODO error
+									}
+								}
+							}
+						}
+					}
+					for (CompressionEncoding ce : decompressOrder) {
+						file = Compressor.decompress(file, ce);
+					}
+					body.rawFile = new MultipartFileStream(new ByteArrayInputStream(file), null, null, body.contentType, file.length);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			} else {
 				// TODO Error on missing length
@@ -56,6 +103,82 @@ public class RequestBody {
 			}
 		}
 		return body;
+	}
+	
+	public String getContentType() {
+		return contentType;
+	}
+	
+	public String getRawText() {
+		return rawText;
+	}
+	
+	public MultipartFileStream getRawFile() {
+		return rawFile;
+	}
+	
+	private boolean fileRaw(ProteusHttpHeaders headers, int length, InputStream in) {
+		try {
+			byte[] data = in.readNBytes(length);
+			List<CompressionEncoding> decompressOrder = new LinkedList<>();
+			if (headers.hasHeader("Content-Encoding")) {
+				List<HeaderValue> contentEncoding = headers.getHeader("Content-Encoding").getValues();
+				for (int i = contentEncoding.size() - 1; i >= 0; i--) {
+					HeaderValue hv = contentEncoding.get(i);
+					List<QualityValue> qv = hv.getValues();
+					for (int j = qv.size()-1; i >= 0; i--) {
+						CompressionEncoding ce = CompressionEncoding.forName(qv.get(j).getValue());
+						if (ce != CompressionEncoding.NONE) {
+							if (!decompressOrder.contains(ce)) {
+								decompressOrder.add(ce);
+							} else {
+								// TODO error
+							}
+						}
+					}
+				}
+			}
+			for (CompressionEncoding ce : decompressOrder) {
+				data = Compressor.decompress(data, ce);
+			}
+			rawFile = new MultipartFileStream(new ByteArrayInputStream(data), null, null, contentType, data.length);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	private boolean contentRaw(ProteusHttpHeaders headers, int length, InputStream in) {
+		try {
+			byte[] data = in.readNBytes(length);
+			List<CompressionEncoding> decompressOrder = new LinkedList<>();
+			if (headers.hasHeader("Content-Encoding")) {
+				List<HeaderValue> contentEncoding = headers.getHeader("Content-Encoding").getValues();
+				for (int i = contentEncoding.size() - 1; i >= 0; i--) {
+					HeaderValue hv = contentEncoding.get(i);
+					List<QualityValue> qv = hv.getValues();
+					for (int j = qv.size()-1; i >= 0; i--) {
+						CompressionEncoding ce = CompressionEncoding.forName(qv.get(j).getValue());
+						if (ce != CompressionEncoding.NONE) {
+							if (!decompressOrder.contains(ce)) {
+								decompressOrder.add(ce);
+							} else {
+								// TODO error
+							}
+						}
+					}
+				}
+			}
+			for (CompressionEncoding ce : decompressOrder) {
+				data = Compressor.decompress(data, ce);
+			}
+			rawText = new String(data, StandardCharsets.UTF_8);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	private boolean contentFormUrlEncoded(int length, InputStream in) {
@@ -173,7 +296,33 @@ public class RequestBody {
 				contentLength = Integer.parseInt(headers.getHeader("Content-Length").getLast().getValue());
 				useCl = true;
 			}
-			byte[] bytes = readFileToBoundary(useCl, contentLength, inputStream, boundaryStart, boundaryEnd);
+			byte[] bytes = null;
+			if (headers.hasHeader("Transfer-Encoding")) {
+				bytes = readFileAsChunks(headers, inputStream);
+			} else {
+				bytes = readFileToBoundary(useCl, contentLength, inputStream, boundaryStart, boundaryEnd);
+			}
+			List<CompressionEncoding> decompressOrder = new LinkedList<>();
+			if (headers.hasHeader("Content-Encoding")) {
+				List<HeaderValue> contentEncoding = headers.getHeader("Content-Encoding").getValues();
+				for (int i = contentEncoding.size() - 1; i >= 0; i--) {
+					HeaderValue hv = contentEncoding.get(i);
+					List<QualityValue> qv = hv.getValues();
+					for (int j = qv.size()-1; i >= 0; i--) {
+						CompressionEncoding ce = CompressionEncoding.forName(qv.get(j).getValue());
+						if (ce != CompressionEncoding.NONE) {
+							if (!decompressOrder.contains(ce)) {
+								decompressOrder.add(ce);
+							} else {
+								// TODO error
+							}
+						}
+					}
+				}
+			}
+			for (CompressionEncoding ce : decompressOrder) {
+				bytes = Compressor.decompress(bytes, ce);
+			}
 			fileData.putParameter(name, new MultipartFileStream(new ByteArrayInputStream(bytes), name, filename, contentType, bytes.length));
 		}
 		return false;
@@ -196,6 +345,50 @@ public class RequestBody {
 			resume = true;
 		}
 		return reply.toString();
+	}
+	
+	private byte[] readFileAsChunks(ProteusHttpHeaders headers, InputStream in) throws NumberFormatException, IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		List<CompressionEncoding> decompressOrder = new LinkedList<>();
+		boolean chunked = false;
+		List<HeaderValue> transferEncoding = headers.getHeader("Transfer-Encoding").getValues();
+		for (int i = transferEncoding.size() - 1; i >= 0; i--) {
+			HeaderValue hv = transferEncoding.get(i);
+			List<QualityValue> qv = hv.getValues();
+			for (int j = qv.size()-1; i >= 0; i--) {
+				CompressionEncoding ce = CompressionEncoding.forName(qv.get(j).getValue());
+				if (ce != CompressionEncoding.NONE) {
+					if (!decompressOrder.contains(ce)) {
+						if (qv.get(j).getValue().equals("chunked")) {
+							chunked = true;
+						} else {
+							decompressOrder.add(ce);
+						}
+					} else {
+						// TODO error
+					}
+				}
+			}
+		}
+		
+		if (chunked) {
+			boolean read = true;
+			while (read) {
+				int lineLength = Integer.parseInt(StreamUtils.readLine(in, true));
+				baos.write(in.readNBytes(lineLength));
+				StreamUtils.consumeLine(in);
+				if (lineLength == 0) {
+					read = false;
+				}
+			}
+		} else {
+			// TODO error
+		}
+		byte[] bytes = baos.toByteArray();
+		for (CompressionEncoding ce : decompressOrder) {
+			bytes = Compressor.decompress(bytes, ce);
+		}
+		return bytes;
 	}
 	
 	private byte[] readFileToBoundary(boolean useContentLength, int length, InputStream in, String boundaryStart, String boundaryEnd) throws IOException {

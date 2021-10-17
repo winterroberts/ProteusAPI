@@ -4,23 +4,46 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class StreamUtils {
 
 	public static String readLine(InputStream inputStream, boolean removeReturn) throws IOException {
-	    return "" + readLineToStream(inputStream, removeReturn).toString();
+		byte[] bytes = readRawLine(inputStream, removeReturn);
+	    return bytes != null ? new String(bytes, StandardCharsets.UTF_8) : "";
 	}
 	
 	public static byte[] readRawLine(InputStream inputStream, boolean removeReturn) throws IOException {
-	    return readLineToStream(inputStream, removeReturn).toByteArray();
+		ByteArrayOutputStream b = readLineToStream(inputStream, removeReturn);
+	    return b != null ? b.toByteArray() : null;
+	}
+	
+	public static void consumeLine(InputStream inputStream) throws IOException {
+	    boolean store = false;
+	    int c;
+	    for (c = inputStream.read(); c != -1; c = inputStream.read()) {
+	    	if (!store && c == '\r') {
+	    		store = true;
+	    	} else {
+	    		if (store) {
+	    			if (c == '\n') {
+	    				return;
+	    			} else {
+	    				store = false;
+	    			}
+	    		}
+	    	}
+	    }
 	}
 	
 	private static ByteArrayOutputStream readLineToStream(InputStream inputStream, boolean removeReturn) throws IOException {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	    boolean store = false;
+	    int count = 0;
 	    int c;
 	    for (c = inputStream.read(); c != -1; c = inputStream.read()) {
 	    	boolean endAfter = false;
+	    	count ++;
 	    	if (!store && c == '\r') {
 	    		store = true;
 	    	} else {
@@ -43,11 +66,11 @@ public class StreamUtils {
 	    		break;
 	    	}
 	    }
+	    byteArrayOutputStream.flush();
+	    byteArrayOutputStream.close();
 	    if (c == -1 && byteArrayOutputStream.size() == 0) {
 	        return null;
 	    }
-	    byteArrayOutputStream.flush();
-	    byteArrayOutputStream.close();
 	    return byteArrayOutputStream;
 	}
 	
