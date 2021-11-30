@@ -75,10 +75,13 @@ public class StreamUtils {
 	}
 	
 	public static byte[] joinByteArray(byte[] byte1, byte[] byte2) {
+		return joinByteArrayToBuffer(byte1, byte2).array();
+	}
+	
+	public static ByteBuffer joinByteArrayToBuffer(byte[] byte1, byte[] byte2) {
 		return ByteBuffer.allocate(byte1.length + byte2.length)
 	            .put(byte1)
-	            .put(byte2)
-	            .array();
+	            .put(byte2);
 	}
 	
 	public static byte[] joinByteArrayWithNewLine(byte[] byte1, byte[] byte2) {

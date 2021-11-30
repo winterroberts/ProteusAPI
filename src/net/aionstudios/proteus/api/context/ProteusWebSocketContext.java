@@ -1,5 +1,8 @@
 package net.aionstudios.proteus.api.context;
 
+import net.aionstudios.proteus.request.ProteusWebSocketConnection;
+import net.aionstudios.proteus.request.WebSocketBuffer;
+
 @ProteusContext(path="/")
 public abstract class ProteusWebSocketContext {
 	
@@ -53,5 +56,12 @@ public abstract class ProteusWebSocketContext {
 	}
 	
 	// TODO
+	public abstract void onOpen(ProteusWebSocketConnection connection);
+	
+	public abstract void onMessage(ProteusWebSocketConnection connection, WebSocketBuffer message);
+	
+	public abstract void onClose(ProteusWebSocketConnection connection);
+	
+	public abstract void onError(ProteusWebSocketConnection connection, Throwable throwable);
 
 }

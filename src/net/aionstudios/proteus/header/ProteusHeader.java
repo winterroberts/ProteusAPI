@@ -11,12 +11,16 @@ public class ProteusHeader {
 	protected ProteusHeader(String key, List<String> values) {
 		this.key = key;
 		boolean noSplit = false;
+		boolean noKV = false;
 		if (key.equals("Expires")) {
 			noSplit = true;
 		}
+		if (key.equals("Sec-WebSocket-Key")) {
+			noKV = true;
+		}
 		this.values = new LinkedList<>();
 		for (String s : values) {
-			this.values.add(new HeaderValue(s, noSplit));
+			this.values.add(new HeaderValue(s, noSplit, noKV));
 		}
 	}
 	

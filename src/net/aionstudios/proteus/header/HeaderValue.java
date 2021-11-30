@@ -12,7 +12,7 @@ public class HeaderValue {
 	List<QualityValue> values;
 	ParameterMap<String> params;
 
-	protected HeaderValue(String headerValue, boolean noSplit) {
+	protected HeaderValue(String headerValue, boolean noSplit, boolean noParts) {
 		Map<String, String> ps = new HashMap<>();
 		values = new LinkedList<>();
 		String[] valueParts = {headerValue};
@@ -20,23 +20,27 @@ public class HeaderValue {
 			valueParts = headerValue.split(",");
 		}
 		for (String vp : valueParts) {
-			String[] parts = vp.split("((;)(?!(\\s*q=[0-9])))");
-			for (String part : parts) {
-				double qi = -1;
-				part = part.trim();
-				if (part.contains(";")) {
-					String[] quality = part.split(";", 2);
-					part = quality[0];
-					String qv = quality[1];
-					String[] qkv = qv.split("=", 2);
-					qi = Double.parseDouble(qkv[1]);
+			if (!noParts) {
+				String[] parts = vp.split("((;)(?!(\\s*q=[0-9])))");
+				for (String part : parts) {
+					double qi = -1;
+					part = part.trim();
+					if (part.contains(";")) {
+						String[] quality = part.split(";", 2);
+						part = quality[0];
+						String qv = quality[1];
+						String[] qkv = qv.split("=", 2);
+						qi = Double.parseDouble(qkv[1]);
+					}
+					String[] kv = part.split("=", 2);
+					if (kv.length == 2) {
+						ps.put(kv[0], kv[1]);
+					} else {
+						values.add(qi >= 0 && qi <= 1 ? new QualityValue(part, qi) : new QualityValue(part));
+					}
 				}
-				String[] kv = part.split("=", 2);
-				if (kv.length == 2) {
-					ps.put(kv[0], kv[1]);
-				} else {
-					values.add(qi >= 0 & qi <= 1 ? new QualityValue(part, qi) : new QualityValue(part));
-				}
+			} else {
+				values.add(new QualityValue(vp));
 			}
 		}
 		params = new ParameterMap<>(ps);
