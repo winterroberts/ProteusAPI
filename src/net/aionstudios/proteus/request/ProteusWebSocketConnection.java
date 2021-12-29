@@ -19,6 +19,7 @@ import net.aionstudios.proteus.api.event.Callback;
 import net.aionstudios.proteus.api.util.SecurityUtils;
 import net.aionstudios.proteus.header.ProteusHeaderBuilder;
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
+import net.aionstudios.proteus.routing.Hostname;
 import net.aionstudios.proteus.websocket.ClosingCode;
 import net.aionstudios.proteus.websocket.DataType;
 import net.aionstudios.proteus.websocket.OpCode;
@@ -38,7 +39,7 @@ public class ProteusWebSocketConnection {
 	private ProteusHttpHeaders headers;
 	
 	private String path;
-	private String host;
+	private Hostname host;
 	
 	private WebSocketState state;
 	private WebSocketBuffer buffer;
@@ -49,14 +50,14 @@ public class ProteusWebSocketConnection {
 	private boolean heartbeatWaiting;
 	private long heartbeat;
 	
-	public ProteusWebSocketConnection(Socket client, ProteusWebSocketContext context, String path, String host, ProteusHttpHeaders headers) throws IOException {
+	public ProteusWebSocketConnection(Socket client, ProteusWebSocketRequest request) throws IOException {
 		this.client = client;
 		this.inputStream = client.getInputStream();
 		this.outputStream = client.getOutputStream();
-		this.context = context;
-		this.path = path;
-		this.host = host;
-		this.headers = headers;
+		this.context = request.getContext();
+		this.path = request.getPathComprehension().getPath();
+		this.host = request.getHostname();
+		this.headers = request.getHeaders();
 		replyQueue = new LinkedBlockingDeque<>();
 		state = WebSocketState.CONNECTING;
 		heartbeat = 0;
@@ -261,7 +262,7 @@ public class ProteusWebSocketConnection {
 		return state;
 	}
 	
-	private void queueFrames(ServerFrame[] frames) {
+	public void queueFrames(ServerFrame[] frames) {
 		for (ServerFrame frame : frames) {
 			replyQueue.add(frame);
 		}
@@ -317,6 +318,14 @@ public class ProteusWebSocketConnection {
 	
 	protected Socket getClient() {
 		return client;
+	}
+	
+	public Hostname getHost() {
+		return host;
+	}
+	
+	public String getPath() {
+		return path;
 	}
 
 }

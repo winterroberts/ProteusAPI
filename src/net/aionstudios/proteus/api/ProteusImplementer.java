@@ -1,6 +1,6 @@
 package net.aionstudios.proteus.api;
 
-import net.aionstudios.proteus.configuration.EndpointConfiguration;
+import net.aionstudios.proteus.routing.Router;
 
 public abstract class ProteusImplementer {
 	
@@ -10,7 +10,7 @@ public abstract class ProteusImplementer {
 			// Implement <> interface?
 	}
 	
-	public abstract EndpointConfiguration[] onEnable();
+	public abstract Router onEnable();
 	
 	// No post enable, plugin hook event can be handled as needed.
 	

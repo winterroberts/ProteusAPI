@@ -1,18 +1,11 @@
 package net.aionstudios.proteus.api.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.net.httpserver.HttpExchange;
-
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
-import net.aionstudios.proteus.request.ParameterMap;
 import net.aionstudios.proteus.request.ProteusHttpRequest;
 
 /**

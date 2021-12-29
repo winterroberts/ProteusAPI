@@ -2,15 +2,15 @@ package net.aionstudios.proteus.api.context;
 
 import net.aionstudios.proteus.request.ProteusWebSocketConnection;
 import net.aionstudios.proteus.request.WebSocketBuffer;
+import net.aionstudios.proteus.routing.PathInterpreter;
 
 @ProteusContext(path="/")
 public abstract class ProteusWebSocketContext {
 	
 	private ProteusContext useContext;
-	private String[] paths;
-	private boolean acceptChildren;
+	private PathInterpreter[] paths;
 	
-	public final String[] getPaths() {
+	public final PathInterpreter[] getPaths() {
 		getContext();
 		return paths;
 	}
@@ -20,35 +20,37 @@ public abstract class ProteusWebSocketContext {
 			ProteusContext pc = this.getClass().getAnnotation(ProteusContext.class);
 			ProteusContext pct = this.getClass().getAnnotatedSuperclass().getAnnotation(ProteusContext.class);
 			if (pct != null && pct.preserveType()) {
-				paths = new String[pct.path().length + pc.path().length];
+				paths = new PathInterpreter[pct.path().length + pc.path().length];
 				for (int i = 0; i < pct.path().length; i++) {
-					paths[i] = pct.path()[i];
+					paths[i] = new PathInterpreter(pct.path()[i]);
 				}
 				for (int i = 0; i < pc.path().length; i++) {
-					paths[i+pct.path().length] = pc.path()[i];
+					paths[i+pct.path().length] = new PathInterpreter(pc.path()[i]);
 				}
-				acceptChildren = pct.acceptChildren() || pc.acceptChildren();
 			} else if (pct != null) {
-				paths = pct.path();
-				acceptChildren = pct.acceptChildren();
+				paths = new PathInterpreter[pct.path().length];
+				String[] pctp = pct.path();
+				for (int i = 0; i < pctp.length; i++) {
+					paths[i] = new PathInterpreter(pctp[i]);
+				}
+			} else if (pc != null) {
+				paths = new PathInterpreter[pc.path().length];
+				String[] pcp = pc.path();
+				for (int i = 0; i < pcp.length; i++) {
+					paths[i] = new PathInterpreter(pcp[i]);
+				}
 			} else {
-				paths = pc.path();
-				acceptChildren = pc.acceptChildren();
+				paths = null;
 			}
 			useContext = pct != null ? pct : pc;
 		}
 		return useContext;
 	}
 	
-	public final boolean acceptChildren() {
-		getContext();
-		return acceptChildren;
-	}
-	
 	public final boolean pathMatch(String path) {
 		getContext();
-		for (String s : paths) {
-			if (path.equals(s) || (acceptChildren() && path.startsWith(s))) {
+		for (PathInterpreter it : paths) {
+			if (it.matches(path)) {
 				return true;
 			}
 		}

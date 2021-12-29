@@ -1,16 +1,18 @@
 package net.aionstudios.proteus.configuration;
 
-import net.aionstudios.hestia.BinaryNearestMap;
-import net.aionstudios.hestia.ComparablePair;
-import net.aionstudios.proteus.api.context.ProteusContext;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.aionstudios.proteus.api.context.ProteusHttpContext;
 import net.aionstudios.proteus.api.context.ProteusWebSocketContext;
-import net.aionstudios.proteus.api.util.URLUtils;
+import net.aionstudios.proteus.routing.HttpRoute;
+import net.aionstudios.proteus.routing.PathInterpreter;
+import net.aionstudios.proteus.routing.WebSocketRoute;
 
 public class ContextController {
 
-	private BinaryNearestMap<String, ProteusHttpContext> httpContexts;
-	private BinaryNearestMap<String, ProteusWebSocketContext> webSocketContexts;
+	private Map<PathInterpreter, ProteusHttpContext> httpContexts;
+	private Map<PathInterpreter, ProteusWebSocketContext> webSocketContexts;
 	
 	private ProteusHttpContext defaultHttpContext = null;
 	private ProteusWebSocketContext defaultWebSocketContext = null;
@@ -19,26 +21,34 @@ public class ContextController {
 		return new ContextController();
 	}
 	
-	public BinaryNearestMap<String, ProteusHttpContext> getHttpContexts() {
+	public Map<PathInterpreter, ProteusHttpContext> getHttpContexts() {
 		return httpContexts;
 	}
 	
-	public BinaryNearestMap<String, ProteusWebSocketContext> getWebSocketContexts() {
+	public Map<PathInterpreter, ProteusWebSocketContext> getWebSocketContexts() {
 		return webSocketContexts;
 	}
 	
-	public ProteusHttpContext getHttpContext(String path) {
-		ComparablePair<String, ProteusHttpContext> context = httpContexts.get(httpContexts.nearestMatch(path));
-		if (context != null && path.startsWith(context.getKey())) {
-			return context.getValue();
+	public HttpRoute getHttpRoute(String path) {
+		for (PathInterpreter it : httpContexts.keySet()) {
+			if (it.matches(path)) {
+				return new HttpRoute(httpContexts.get(it), it.comprehend(path));
+			}
+		}
+		if (defaultHttpContext != null) {
+			return new HttpRoute(defaultHttpContext, null);
 		}
 		return null;
 	}
 	
-	public ProteusWebSocketContext getWebSocketContext(String path) {
-		ComparablePair<String, ProteusWebSocketContext> context = webSocketContexts.get(webSocketContexts.nearestMatch(path));
-		if (context != null && path.startsWith(context.getKey())) {
-			return context.getValue();
+	public WebSocketRoute getWebSocketRoute(String path) {
+		for (PathInterpreter it : webSocketContexts.keySet()) {
+			if (it.matches(path)) {
+				return new WebSocketRoute(webSocketContexts.get(it), it.comprehend(path));
+			}
+		}
+		if (defaultWebSocketContext != null) {
+			return new WebSocketRoute(defaultWebSocketContext, null);
 		}
 		return null;
 	}
@@ -59,25 +69,29 @@ public class ContextController {
 		this.defaultWebSocketContext = context;
 	}
 	
-	public void setHttpContext(ProteusHttpContext context) {
-		for (String path : context.getPaths())	{
-			if (URLUtils.isValidPathSegment(path)) {
-				httpContexts.put(path, context);
-			}
+	public void addHttpContext(ProteusHttpContext context) {
+		addHttpContext(context, context.getPaths());
+	}
+	
+	public void addWebSocketContext(ProteusWebSocketContext context) {
+		addWebSocketContext(context, context.getPaths());
+	}
+	
+	public void addHttpContext(ProteusHttpContext context, PathInterpreter...interpreters) {
+		for (PathInterpreter path : interpreters)	{
+			httpContexts.put(path, context);
 		}
 	}
 	
-	public void setWebSocketContext(ProteusWebSocketContext context) {
-		for (String path : context.getPaths())	{
-			if (URLUtils.isValidPathSegment(path)) {
-				webSocketContexts.put(path, context);
-			}
+	public void addWebSocketContext(ProteusWebSocketContext context, PathInterpreter...interpreters) {
+		for (PathInterpreter path : interpreters)	{
+			webSocketContexts.put(path, context);
 		}
 	}
 	
 	private ContextController() {
-		this.httpContexts = new BinaryNearestMap<>();
-		this.webSocketContexts = new BinaryNearestMap<>();
+		this.httpContexts = new HashMap<>();
+		this.webSocketContexts = new HashMap<>();
 	}
 	
 }

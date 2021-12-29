@@ -14,7 +14,6 @@ import java.lang.annotation.Inherited;
 public @interface ProteusContext {
 	
 	String[] path() default "/";
-	boolean acceptChildren() default false;
 	boolean preserveType() default false;
 
 }

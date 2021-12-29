@@ -2,16 +2,10 @@ package net.aionstudios.proteus.response;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import net.aionstudios.proteus.api.util.FormatUtils;
 import net.aionstudios.proteus.compression.CompressionEncoding;
 import net.aionstudios.proteus.compression.Compressor;
-import net.aionstudios.proteus.header.ProteusHeader;
 import net.aionstudios.proteus.header.ProteusHeaderBuilder;
-import net.aionstudios.proteus.header.ProteusHttpHeaders;
-import net.aionstudios.proteus.request.ProteusHttpRequest;
 
 public class ProteusHttpResponse {
 	

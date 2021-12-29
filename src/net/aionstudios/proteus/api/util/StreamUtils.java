@@ -39,11 +39,9 @@ public class StreamUtils {
 	private static ByteArrayOutputStream readLineToStream(InputStream inputStream, boolean removeReturn) throws IOException {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 	    boolean store = false;
-	    int count = 0;
 	    int c;
 	    for (c = inputStream.read(); c != -1; c = inputStream.read()) {
 	    	boolean endAfter = false;
-	    	count ++;
 	    	if (!store && c == '\r') {
 	    		store = true;
 	    	} else {

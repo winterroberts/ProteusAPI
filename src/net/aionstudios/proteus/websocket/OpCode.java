@@ -1,7 +1,5 @@
 package net.aionstudios.proteus.websocket;
 
-import net.aionstudios.proteus.request.ProteusWebSocketConnection;
-
 public enum OpCode {
 	
 	CONTINUATION((byte) 0x0),

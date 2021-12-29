@@ -2,9 +2,6 @@ package net.aionstudios.proteus.configuration;
 
 import javax.net.ssl.SSLContext;
 
-import net.aionstudios.proteus.api.context.ProteusHttpContext;
-import net.aionstudios.proteus.api.context.ProteusWebSocketContext;
-
 public class EndpointConfiguration {
 	
 	private EndpointType type;

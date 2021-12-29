@@ -6,8 +6,13 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.aionstudios.proteus.api.context.ProteusHttpContext;
 import net.aionstudios.proteus.api.util.RequestUtils;
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
+import net.aionstudios.proteus.routing.Hostname;
+import net.aionstudios.proteus.routing.HttpRoute;
+import net.aionstudios.proteus.routing.PathComprehension;
+import net.aionstudios.proteus.routing.Router;
 
 public class ProteusHttpRequest {
 	
@@ -17,8 +22,7 @@ public class ProteusHttpRequest {
 	
 	private String method;
 	private String httpVersion;
-	private String path;
-	private String host;
+	private Hostname hostname;
 	
 	private ProteusHttpHeaders headers;
 	
@@ -26,7 +30,9 @@ public class ProteusHttpRequest {
 	private ParameterMap<String> urlParameters;
 	private ParameterMap<String> cookies;
 	
-	public ProteusHttpRequest(Socket client, String method, String httpVersion, String path, String host, ProteusHttpHeaders headers) {
+	private HttpRoute route;
+	
+	public ProteusHttpRequest(Socket client, String method, String httpVersion, String path, String host, ProteusHttpHeaders headers, Router router) {
 		try {
 			this.inputStream = client.getInputStream();
 		} catch (IOException e) {
@@ -35,9 +41,9 @@ public class ProteusHttpRequest {
 		this.remoteAddress = client.getInetAddress().toString();
 		this.method = method;
 		this.httpVersion = httpVersion;
-		this.host = host;
+		this.hostname = new Hostname(host);
 		this.headers = headers;
-		resolveURI(path);
+		route = router.getHttpRoute(hostname, resolveURI(path));
 		if (method.equals("POST")) {
 			body = RequestBody.createRequestBody(this, inputStream);
 		}
@@ -50,7 +56,7 @@ public class ProteusHttpRequest {
 		}
 	}
 	
-	private void resolveURI(String path) {
+	private String resolveURI(String path) {
 		String[] requestSplit;
 		if(path.contains("?")) {
 			requestSplit = path.split("\\?", 2);
@@ -63,8 +69,8 @@ public class ProteusHttpRequest {
 		if(requestSplit.length>1) {
 			getP = RequestUtils.resolveQueryString(requestSplit[1]);
 		}
-		this.path = requestSplit[0];
 		urlParameters = new ParameterMap<>(getP);
+		return requestSplit[0];
 	}
 
 	public String getMethod() {
@@ -75,12 +81,8 @@ public class ProteusHttpRequest {
 		return httpVersion;
 	}
 	
-	public String getPath() {
-		return path;
-	}
-	
-	public String getHost() {
-		return host;
+	public Hostname getHostname() {
+		return hostname;
 	}
 
 	public ParameterMap<String> getUrlParameters() {
@@ -102,5 +104,17 @@ public class ProteusHttpRequest {
 	public String getRemoteAddress() {
 		return remoteAddress;
 	}
+	
+	public ProteusHttpContext getContext() {
+		return route != null ? route.getContext() : null;
+	}
 
+	public PathComprehension getPathComprehension() {
+		return route != null ? route.getPathComprehension() : null;
+	}
+	
+	public boolean routed() {
+		return route != null;
+	}
+	
 }
