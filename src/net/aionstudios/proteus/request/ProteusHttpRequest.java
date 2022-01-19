@@ -9,6 +9,7 @@ import java.util.Map;
 import net.aionstudios.proteus.api.context.ProteusHttpContext;
 import net.aionstudios.proteus.api.util.RequestUtils;
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
+import net.aionstudios.proteus.routing.CompositeRouter;
 import net.aionstudios.proteus.routing.Hostname;
 import net.aionstudios.proteus.routing.HttpRoute;
 import net.aionstudios.proteus.routing.PathComprehension;
@@ -32,7 +33,7 @@ public class ProteusHttpRequest {
 	
 	private HttpRoute route;
 	
-	public ProteusHttpRequest(Socket client, String method, String httpVersion, String path, String host, ProteusHttpHeaders headers, Router router) {
+	public ProteusHttpRequest(Socket client, String method, String httpVersion, String path, String host, ProteusHttpHeaders headers, CompositeRouter router) {
 		try {
 			this.inputStream = client.getInputStream();
 		} catch (IOException e) {

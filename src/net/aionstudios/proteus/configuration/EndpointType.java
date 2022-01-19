@@ -14,6 +14,10 @@ public enum EndpointType {
 		this.webSocket = webSocket;
 	}
 	
+	public String toString() {
+		return http ? (webSocket ? "mixed traffic" : "http") : (webSocket ? "web socket" : "ERRANT");
+	}
+	
 	public boolean isHttp() {
 		return http;
 	}

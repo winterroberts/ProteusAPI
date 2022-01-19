@@ -7,6 +7,7 @@ import java.util.Map;
 import net.aionstudios.proteus.api.context.ProteusWebSocketContext;
 import net.aionstudios.proteus.api.util.RequestUtils;
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
+import net.aionstudios.proteus.routing.CompositeRouter;
 import net.aionstudios.proteus.routing.Hostname;
 import net.aionstudios.proteus.routing.PathComprehension;
 import net.aionstudios.proteus.routing.Router;
@@ -24,7 +25,7 @@ public class ProteusWebSocketRequest {
 	
 	private WebSocketRoute route;
 	
-	public ProteusWebSocketRequest(Socket client, String path, String host, ProteusHttpHeaders headers, Router router) {
+	public ProteusWebSocketRequest(Socket client, String path, String host, ProteusHttpHeaders headers, CompositeRouter router) {
 		this.hostname = new Hostname(host);
 		this.headers = headers;
 		route = router.getWebSocketRoute(hostname, resolveURI(path));

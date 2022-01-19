@@ -30,6 +30,18 @@ public class Router {
 		return null;
 	}
 	
+	public CompositeRouter toComposite() {
+		return new CompositeRouter(this);
+	}
+	
+	protected EndpointConfiguration getEndpoint() {
+		return endpoint;
+	}
+	
+	protected Set<Hostname> getHosts() {
+		return hosts;
+	}
+	
 	public int getPort() {
 		return endpoint.getPort();
 	}

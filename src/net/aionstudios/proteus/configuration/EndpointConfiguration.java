@@ -26,6 +26,10 @@ public class EndpointConfiguration {
 		controller = ContextController.newInstance();
 	}
 	
+	public EndpointType getType() {
+		return type;
+	}
+	
 	public ContextController getContextController() {
 		return controller;
 	}

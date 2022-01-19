@@ -1,5 +1,7 @@
 package net.aionstudios.proteus.routing;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +24,7 @@ public class PathInterpreter {
 			PathComponent p = new PathComponent(c);
 			components.add(p);
 			if (p.isPathParam()) {
-				pathParams.put(i, c.substring(1));
+				pathParams.put(i, URLDecoder.decode(c.substring(1), StandardCharsets.UTF_8));
 			}
 			i++;
 		}
@@ -45,7 +47,7 @@ public class PathInterpreter {
 		if (matches(path)) {
 			for (int i = 0; i < components.size(); i++) {
 				if (components.get(i).isPathParam()) {
-					params.put(pathParams.get(i), parts[i]);
+					params.put(pathParams.get(i), URLDecoder.decode(parts[i], StandardCharsets.UTF_8));
 				}
 			}
 			return new PathComprehension(this, path, new ParameterMap<>(params));
