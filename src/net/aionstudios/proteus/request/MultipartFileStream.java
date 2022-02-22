@@ -3,6 +3,12 @@ package net.aionstudios.proteus.request;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Handles HTTP file upload as an {@link InputStream}
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class MultipartFileStream extends InputStream {
 	
 	private InputStream content;
@@ -61,6 +67,9 @@ public class MultipartFileStream extends InputStream {
 		return size;
 	}
 	
+	/**
+	 * @return Reads this stream without storing the contents.
+	 */
 	public boolean delete() {
 		if (!deleted) {
 			try {

@@ -7,6 +7,13 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * Keeps track of {@link EventListener}s with {@link EventHandler}s that accept
+ * each different {@link Event} implementation.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class EventManager {
 	
 	private static EventManager self;
@@ -16,11 +23,18 @@ public class EventManager {
 		self = this;
 	}
 	
+	/**
+	 * @return The singleton instance of this class, which may be constructed if it has not been already.
+	 */
 	public static EventManager getInstance() {
 		return self != null ? self : new EventManager();
 	}
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Registers each {@link EventHandler} annotated methods from the given {@link EventListener} to this event manager.
+	 * @param listener The {@link EventListener} which contains {@link EventHandler} annotated methods.
+	 */
 	public final void submitEventListener(EventListener listener) {
 		Method[] methods = listener.getClass().getMethods();
 		for (Method method : methods) {
@@ -38,6 +52,12 @@ public class EventManager {
 		}
 	}
 	
+	/**
+	 * Fires the given event, propagating it through the {@link EventListener}s that accept it first.
+	 * 
+	 * @param e The {@link Event} to be fired.
+	 * @return True if the event fired successfully (was not cancelled or stopped by an error).
+	 */
 	public final boolean fireEvent(Event e) {
 		for (Entry<EventListener, Set<Method>> le : listeners.get(e.getClass()).entrySet()) {
 			for (Method m : le.getValue()) {

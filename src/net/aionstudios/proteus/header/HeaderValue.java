@@ -1,5 +1,6 @@
 package net.aionstudios.proteus.header;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +8,12 @@ import java.util.Map;
 
 import net.aionstudios.proteus.request.ParameterMap;
 
+/**
+ * A collection of values for an HTTP header.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class HeaderValue {
 	
 	List<QualityValue> values;
@@ -46,6 +53,9 @@ public class HeaderValue {
 		params = new ParameterMap<>(ps);
 	}
 	
+	/**
+	 * @return The first {@link QualityValue} (parameter and highest quality), or null if there isn't one.
+	 */
 	public QualityValue getQualityValue() {
 		if (values.size() > 0) {
 			return values.get(0);
@@ -53,16 +63,25 @@ public class HeaderValue {
 		return null;
 	}
 	
+	/**
+	 * @return The first (default) vaLue for this header, or null if none exist.
+	 */
 	public String getValue() {
 		return values.size() > 0 ? getQualityValue().getValue() : null;
 	}
 	
+	/**
+	 * @return A parameter map from all assigned values within this header definition.
+	 */
 	public ParameterMap<String> getParams() {
 		return params;
 	}
 	
+	/**
+	 * @return A list of quality values (which may or may not actually have quality indicators) for each assigned value of this header.
+	 */
 	public List<QualityValue> getValues() {
-		return values;
+		return Collections.unmodifiableList(values);
 	}
 	
 }

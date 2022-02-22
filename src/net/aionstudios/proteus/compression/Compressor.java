@@ -14,12 +14,36 @@ import java.util.zip.GZIPOutputStream;
 import com.nixxcode.jvmbrotli.dec.BrotliInputStream;
 import com.nixxcode.jvmbrotli.enc.BrotliOutputStream;
 
+/**
+ * A utility class which wraps input in the named {@link CompressionEncoding} to a byte[].
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class Compressor {
 	
+	// TODO support for stream wrapping
+	
+	/**
+	 * Compresses the string to an encoded byte[]
+	 * 
+	 * @param str The string to be compressed.
+	 * @param ce The {@link CompressionEncoding} to be used.
+	 * @return The resultant encoded string as a byte[].
+	 * @throws IOException If the stream or charset encoding causes a failure.
+	 */
 	public static byte[] compress(String str, CompressionEncoding ce) throws IOException {
 		return compress(str.getBytes(StandardCharsets.UTF_8), ce);
 	}
 	
+	/**
+	 * Compresses the byte[] to an encoded byte[]
+	 * 
+	 * @param bytes The byte[] to be compressed.
+	 * @param ce The {@link CompressionEncoding} to be used.
+	 * @return The resultant encoded byte[] as a byte[].
+	 * @throws IOException If the stream encoding causes a failure.
+	 */
 	public static byte[] compress(byte[] bytes, CompressionEncoding ce) throws IOException {
 		if ((bytes == null) || (bytes.length == 0)) {
 			return null;
@@ -46,6 +70,14 @@ public class Compressor {
 		return obj.toByteArray();
 	}
 	
+	/**
+	 * Decompresses the encoded byte[] to an byte[]
+	 * 
+	 * @param bytes The byte[] to be decompressed.
+	 * @param ce The {@link CompressionEncoding} to be used.
+	 * @return The resultant decoded byte[] as a byte[].
+	 * @throws IOException If the stream decoding causes a failure.
+	 */
 	public static byte[] decompress(byte[] bytes, CompressionEncoding ce) throws IOException {
 		if ((bytes == null) || (bytes.length == 0)) {
 			return null;

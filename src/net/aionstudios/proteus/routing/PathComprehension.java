@@ -5,6 +5,12 @@ import java.util.Map;
 
 import net.aionstudios.proteus.request.ParameterMap;
 
+/**
+ * The interpretation of a request path by an interpreter (with path parameters saved)
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class PathComprehension {
 	
 	private PathInterpreter interpreter;
@@ -22,14 +28,23 @@ public class PathComprehension {
 		this.pathParams = pathParams;
 	}
 	
+	/**
+	 * @return A {@link ParameterMap<String>} containing the path parameters of the request, which may be empty.
+	 */
 	public ParameterMap<String> getPathParameters() {
 		return pathParams;
 	}
 	
+	/**
+	 * @return The {@link PathInterpreter} which accepted the request path.
+	 */
 	public PathInterpreter getInterpreter() {
 		return interpreter;
 	}
 	
+	/**
+	 * @return The raw value of the path component of the request URL.
+	 */
 	public String getPath() {
 		return path;
 	}

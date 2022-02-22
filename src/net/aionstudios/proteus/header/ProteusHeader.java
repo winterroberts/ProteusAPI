@@ -1,13 +1,21 @@
 package net.aionstudios.proteus.header;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * An HTTP header, which contains a collections of one or more {@link HeaderValue}s.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class ProteusHeader {
 	
 	private String key;
 	private List<HeaderValue> values;
 	
+	// Assigns special flags and decomposes collectec values into HeaderValues.
 	protected ProteusHeader(String key, List<String> values) {
 		this.key = key;
 		boolean noSplit = false;
@@ -28,22 +36,39 @@ public class ProteusHeader {
 		values.add(value);
 	}
 	
+	/**
+	 * @return The key name for which this header contains {@link HeaderValue}s.
+	 */
 	public String getKey() {
 		return key;
 	}
 	
+	/**
+	 * @return The number of {@link HeaderValues} assigned to this header.
+	 */
 	public int size() {
 		return values.size();
 	}
 	
+	/**
+	 * @param idx An index into the headers list.
+	 * @return The {@link HeaderValue} at the given index if it exists.
+	 * @throws IndexOutOfBoundsException if the index is outside the boundary of the headers list.
+	 */
 	public HeaderValue get(int idx) {
 		return values.get(idx);
 	}
 	
+	/**
+	 * @return A list of all header values.
+	 */
 	public List<HeaderValue> getValues() {
-		return values;
+		return Collections.unmodifiableList(values);
 	}
 	
+	/**
+	 * @return The first header value (which may be considered the only valid setting) in the header list.
+	 */
 	public HeaderValue getFirst() {
 		if (values.size() > 0) {
 			return values.get(0);
@@ -51,6 +76,9 @@ public class ProteusHeader {
 		return null;
 	}
 	
+	/**
+	 * @return The last header value (which may also be the first, but is often not considered the default otherwise) in the header list.
+	 */
 	public HeaderValue getLast() {
 		if (values.size() > 0) {
 			return values.get(values.size()-1);

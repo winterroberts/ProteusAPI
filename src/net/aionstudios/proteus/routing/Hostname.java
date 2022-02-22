@@ -1,15 +1,30 @@
 package net.aionstudios.proteus.routing;
 
+/**
+ * A hostname, which may be a wildcard, used to identify traffic-accepting routes.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class Hostname {
 	
 	public static Hostname ANY = new Hostname("*");
 	
 	private String host;
 	
+	/**
+	 * Creates a new hostname for traffic on the given domain.
+	 * 
+	 * @param hostname The domain or subdomain for routing.
+	 */
 	public Hostname(String hostname) {
 		this.host = hostname;
 	}
 	
+	/**
+	 * @param other A {@link Hostame} to compare to.
+	 * @return True if the hostnames are equivalent, false otherwise.
+	 */
 	public boolean matches(Hostname other) {
 		return this.equals(ANY) || other.equals(ANY) ? true : this.equals(other);
 	}
@@ -27,6 +42,9 @@ public class Hostname {
 		return false;
 	}
 	
+	/**
+	 * @return The domain or subdomain string for this hostname.
+	 */
 	public String getHostname() {
 		return host;
 	}

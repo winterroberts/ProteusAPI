@@ -1,5 +1,11 @@
 package net.aionstudios.proteus.websocket;
 
+/**
+ * Enumerates valid web socket operation codes.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public enum OpCode {
 	
 	CONTINUATION((byte) 0x0),

@@ -3,6 +3,12 @@ package net.aionstudios.proteus.fileio;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A mime type map, a non-exhaustive list of the mime type string for different file extensions.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class MimeType {
 	
 	private static MimeType self;
@@ -140,14 +146,27 @@ public class MimeType {
 		mimeExtensionMap.putIfAbsent("m4v", "video/m4a");
 	}
 	
+	/**
+	 * @return The singleton instance of this class, which may be constructed if it had not been already.
+	 */
 	public static MimeType getInstance() {
 		return self != null ? self : new MimeType();
 	}
 	
+	/**
+	 * Adds the mime type listing for the given extension if it is not already present.
+	 * 
+	 * @param extension The file extension.
+	 * @param mimeString The mime type to be associated.
+	 */
 	public void addMimeType(String extension, String mimeString) {
 		mimeExtensionMap.putIfAbsent(extension, mimeString);
 	}
 	
+	/**
+	 * @param extension The file extension.
+	 * @return The associated mime string or "application/octet-stream" if it exists.
+	 */
 	public String getMimeString(String extension) {
 		return mimeExtensionMap.getOrDefault(extension, "application/octet-stream");
 	}

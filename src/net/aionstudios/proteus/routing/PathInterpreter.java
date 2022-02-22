@@ -9,12 +9,23 @@ import java.util.Map;
 
 import net.aionstudios.proteus.request.ParameterMap;
 
+/**
+ * Combines {@link PathComponents} to interpret request path matches.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class PathInterpreter {
 	
 	private List<PathComponent> components;
 	
 	private Map<Integer, String> pathParams;
 	
+	/**
+	 * Creates a new path interpreter.
+	 * 
+	 * @param path The {@link PathComponent} form description for this path.
+	 */
 	public PathInterpreter(String path) {
 		components = new LinkedList<>();
 		String[] comps = splitPath(path);
@@ -30,6 +41,10 @@ public class PathInterpreter {
 		}
 	}
 	
+	/**
+	 * @param path The request path to be matched.
+	 * @return True if the path matches, false otherwise.
+	 */
 	public boolean matches(String path) {
 		String[] parts = splitPath(path);
 		if (components.size() == parts.length) {
@@ -41,6 +56,12 @@ public class PathInterpreter {
 		return false;
 	}
 	
+	/**
+	 * Converts the given request path to a {@link PathComprehension} based on this interpreter.
+	 * 
+	 * @param path The request path to be interpreted.
+	 * @return The {@link PathComprehension} of the request path via this interpreter, or null if the interpreter could not comprehend the path.
+	 */
 	public PathComprehension comprehend(String path) {
 		Map<String, String> params = new HashMap<>();
 		String[] parts = splitPath(path);

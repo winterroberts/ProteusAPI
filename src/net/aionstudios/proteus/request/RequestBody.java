@@ -17,6 +17,12 @@ import net.aionstudios.proteus.header.ProteusHeaderBuilder;
 import net.aionstudios.proteus.header.ProteusHttpHeaders;
 import net.aionstudios.proteus.header.QualityValue;
 
+/**
+ * The body information, part of teh {@link ProteusHttpRequest}.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class RequestBody {
 	
 	private ParameterMap<String> bodyData;
@@ -35,14 +41,27 @@ public class RequestBody {
 		contentType = null;
 	}
 	
+	/**
+	 * @return A {@link ParameterMap<String>}, the body parameters of this request, if any.
+	 */
 	public ParameterMap<String> getBodyParams() {
 		return bodyData;
 	}
 	
+	/**
+	 * @return A {@link ParameterMap<MultipartFileStream>}, the payload body of this request, if any.
+	 */
 	public ParameterMap<MultipartFileStream> getFiles() {
 		return fileData;
 	}
 	
+	/**
+	 * Creates a new RequestBody object, processing body data.
+	 * 
+	 * @param request The {@link ProteusHttpRequest} to process.
+	 * @param inputStream The {@link InputStream} containing the body of the request, if any.
+	 * @return The RequestBody object that has been created, which may be empty.
+	 */
 	public static RequestBody createRequestBody(ProteusHttpRequest request, InputStream inputStream) {
 		RequestBody body = new RequestBody();
 		ProteusHttpHeaders headers = request.getHeaders();
@@ -105,14 +124,23 @@ public class RequestBody {
 		return body;
 	}
 	
+	/**
+	 * @return The declared content type of the request body.
+	 */
 	public String getContentType() {
 		return contentType;
 	}
 	
+	/**
+	 * @return The raw text value (if the body is raw text) of the body.
+	 */
 	public String getRawText() {
 		return rawText;
 	}
 	
+	/**
+	 * @return The {@link MultipartFileStream} of the body if a the payload was a file.
+	 */
 	public MultipartFileStream getRawFile() {
 		return rawFile;
 	}
@@ -217,7 +245,7 @@ public class RequestBody {
 				}
 				while (resume) {
 					flag = false;
-					resume = false;
+					resume = false; // TODO: Support multiple files
 					StringBuilder contentBuilder = new StringBuilder();
 			        String line;
 			        while (!(line = StreamUtils.readLine(in, true)).isBlank()) {
@@ -226,7 +254,7 @@ public class RequestBody {
 			        
 			        String[] contentLines = contentBuilder.toString().split("\r\n");
 			        
-					ProteusHeaderBuilder headerBuilder = new ProteusHeaderBuilder();
+					ProteusHeaderBuilder headerBuilder = ProteusHeaderBuilder.newBuilder();
 			        for (int h = 0; h < contentLines.length; h++) {
 			        	String header = contentLines[h];
 			        	String[] headerSplit = header.split(":", 2);

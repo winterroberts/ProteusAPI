@@ -7,6 +7,12 @@ import net.aionstudios.proteus.compression.CompressionEncoding;
 import net.aionstudios.proteus.compression.Compressor;
 import net.aionstudios.proteus.header.ProteusHeaderBuilder;
 
+/**
+ * Used to stage header and body information which will be returned to the client
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class ProteusHttpResponse {
 	
 	private OutputStream outputStream;
@@ -21,25 +27,53 @@ public class ProteusHttpResponse {
 	// TODO range request (which will be in an implementer...) but file support may also be native for pass-through.
 	private boolean complete = false;
 	
+	/**
+	 * Creates a new ProteusHttpResponse with the given encoding and output stream (from client socket).
+	 * 
+	 * @param outputStream The output stream to be used when writing the response.
+	 * @param encoding The {@link CompressionEncoding} to be used when writing the response.
+	 */
 	public ProteusHttpResponse(OutputStream outputStream, CompressionEncoding encoding) {
 		this.outputStream = outputStream;
 		this.encoding = encoding;
 		this.mimeString = "text/html";
-		headerBuilder = new ProteusHeaderBuilder();
+		headerBuilder = ProteusHeaderBuilder.newBuilder();
 	}
 	
+	/**
+	 * Sends the response data (as bytes) with the 200 (OK) status code.
+	 * 
+	 * @param response The response data.
+	 */
 	public void sendResponse(byte[] response) {
 		sendResponse(ResponseCode.OK, response);
 	}
 	
+	/**
+	 * Sends the response string with the 200 (OK) status code.
+	 * 
+	 * @param response The response string.
+	 */
 	public void sendResponse(String response) {
 		sendResponse(ResponseCode.OK, response);
 	}
 	
+	/**
+	 * Sends the response string with the given response code.
+	 * 
+	 * @param responseCode The {@link ResponeCode} indicating the state of the request.
+	 * @param response The response string.
+	 */
 	public void sendResponse(ResponseCode responseCode, String response) {
 		sendResponse(responseCode, response.getBytes());
 	}
 	
+	/**
+	 * Sends the response data (as bytes) with the given response code.
+	 * 
+	 * @param responseCode The {@link ResponeCode} indicating the state of the request.
+	 * @param response The response data.
+	 */
 	public void sendResponse(ResponseCode responseCode, byte[] response) {
 		if (!complete) {
 			complete = true;
@@ -87,12 +121,20 @@ public class ProteusHttpResponse {
 		}
 	}
 	
+	/**
+	 * Sets the "Last-Modified" time of the resource, which may be now or last edit.
+	 * @param time
+	 */
 	public void setModified(long time) {
 		if (!complete) {
 			modified = time;
 		}
 	}
 	
+	/**
+	 * Sets the mime type of the resource.
+	 * @param mime The mime type as a string.
+	 */
 	public void setMimeString(String mime) {
 		if (!complete) {
 			mimeString = mime;

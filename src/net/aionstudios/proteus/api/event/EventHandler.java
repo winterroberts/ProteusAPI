@@ -8,8 +8,12 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target(METHOD)
+/**
+ * An annotation for methods in {@link EventHandler}s to accept {@link Event}s of the methods argument type.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public @interface EventHandler {
-
-	String application() default "";
 	
 }

@@ -1,5 +1,11 @@
 package net.aionstudios.proteus.websocket;
 
+/**
+ * Enumerates valid web socket closing codes
+ * 
+ * @author Winter Roberts
+ *
+ */
 public enum ClosingCode {
 
 	NORMAL((short) 1000),

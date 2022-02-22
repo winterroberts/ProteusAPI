@@ -6,6 +6,12 @@ import java.nio.charset.StandardCharsets;
 import net.aionstudios.proteus.api.event.Callback;
 import net.aionstudios.proteus.request.ProteusWebSocketConnection;
 
+/**
+ * An individual frame for transmission to the client.
+ * 
+ * @author Winter Roberts
+ *
+ */
 public class ServerFrame {
 	
 	private OpCode opCode;
@@ -27,18 +33,30 @@ public class ServerFrame {
 		this.callback = callback;
 	}
 	
+	/**
+	 * @return The byte indicating the op code to be transmitted.
+	 */
 	public byte getOpByte() {
 		return (byte) ((byte) opCode.getValue() | (finished ? 0x80 : 0x00));
 	}
 	
+	/**
+	 * Calls the callback function (after this frame is sent).
+	 */
 	public void callback() {
 		callback.call();
 	}
 	
+	/**
+	 * @return True if this is a single frame or the last frame in a continuation, false otherwise.
+	 */
 	public boolean isEnd() {
 		return finished;
 	}
 	
+	/**
+	 * @return The encoded length of the message.
+	 */
 	public byte[] getLengthBytes() {
 		ByteBuffer bytes;
 		if (payload.length > 125) {
@@ -58,10 +76,21 @@ public class ServerFrame {
 		return bytes.array();
 	}
 	
+	/**
+	 * @return The payload of this frame.
+	 */
 	public byte[] getPayload() {
 		return payload;
 	}
 	
+	/**
+	 * Creates a new closing server frame.
+	 * 
+	 * @param code The {@link ClosingCode} to be used.
+	 * @param message The closing reason message.
+	 * @param callback The callback (or null) to be called after this frame is sent.
+	 * @return A closing server frame.
+	 */
 	public static ServerFrame closingFrame(ClosingCode code, String message, Callback callback) {
 		message = message == null ? "" : message;
 		callback = callback == null ? Callback.NULL : callback;
@@ -75,6 +104,13 @@ public class ServerFrame {
 		return new ServerFrame(OpCode.CLOSE, payload.array(), true, callback);
 	}
 	
+	/**
+	 * Creates a new ping server frame.
+	 * 
+	 * @param message The ping message.
+	 * @param callback The callback (or null) to be called after this frame is sent.
+	 * @return A ping server frame.
+	 */
 	public static ServerFrame pingFrame(String message, Callback callback) {
 		message = message == null ? "" : message;
 		callback = callback == null ? Callback.NULL : callback;
@@ -85,6 +121,13 @@ public class ServerFrame {
 		return new ServerFrame(OpCode.PING, payload, true, callback);
 	}
 	
+	/**
+	 * Creates a new pong server frame.
+	 * 
+	 * @param message The pong message (from the ping which prompted it).
+	 * @param callback The callback (or null) to be called after this frame is sent.
+	 * @return A pong server frame.
+	 */
 	public static ServerFrame pongFrame(String message, Callback callback) {
 		message = message == null ? "" : message;
 		callback = callback == null ? Callback.NULL : callback;
