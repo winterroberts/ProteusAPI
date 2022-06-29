@@ -1,6 +1,7 @@
 package net.aionstudios.proteus.api;
 
 import net.aionstudios.proteus.routing.Router;
+import net.winrob.commons.saon.EventDispatcher;
 
 /**
  * The base plugin class.
@@ -32,6 +33,13 @@ public abstract class ProteusImplementer {
 	 * @return A Router, which may be null for plugins.
 	 */
 	public abstract Router onEnable();
+	
+	/**
+	 * Registers {@link EventListener} hooks for the implementer.
+	 * 
+	 * @param dispatcher The EventDispatcher for which this implementer may register events.
+	 */
+	public abstract void onStart(EventDispatcher dispatcher);
 	
 	// No post enable, plugin hook event can be handled by classes that require each other.
 	

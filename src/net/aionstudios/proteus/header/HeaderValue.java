@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.aionstudios.proteus.request.ParameterMap;
+import net.aionstudios.proteus.api.request.ParameterMap;
 
 /**
  * A collection of values for an HTTP header.

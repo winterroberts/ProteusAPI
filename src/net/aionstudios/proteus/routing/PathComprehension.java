@@ -1,9 +1,7 @@
 package net.aionstudios.proteus.routing;
 
 import java.util.HashMap;
-import java.util.Map;
-
-import net.aionstudios.proteus.request.ParameterMap;
+import net.aionstudios.proteus.api.request.ParameterMap;
 
 /**
  * The interpretation of a request path by an interpreter (with path parameters saved)

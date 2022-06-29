@@ -1,6 +1,5 @@
 package net.aionstudios.proteus.routing;
 
-import net.aionstudios.proteus.api.context.ProteusHttpContext;
 import net.aionstudios.proteus.api.context.ProteusWebSocketContext;
 
 /**

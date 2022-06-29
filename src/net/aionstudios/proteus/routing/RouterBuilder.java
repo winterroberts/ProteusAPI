@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.aionstudios.proteus.configuration.EndpointConfiguration;
-import net.aionstudios.proteus.header.ProteusHeader;
 
 /**
  * Used to construct endpoint {@link Router}s.

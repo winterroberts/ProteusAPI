@@ -1,7 +1,7 @@
 package net.aionstudios.proteus.api.context;
 
-import net.aionstudios.proteus.request.ProteusHttpRequest;
-import net.aionstudios.proteus.response.ProteusHttpResponse;
+import net.aionstudios.proteus.api.request.ProteusHttpRequest;
+import net.aionstudios.proteus.api.response.ProteusHttpResponse;
 import net.aionstudios.proteus.routing.PathInterpreter;
 
 @ProteusContext(path="/")
