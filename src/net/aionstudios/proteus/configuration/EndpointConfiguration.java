@@ -27,6 +27,10 @@ public class EndpointConfiguration {
 		this(type, port, null);
 	}
 	
+	public EndpointConfiguration(EndpointType type, ContextController ctxController, int port) {
+		this(type, ContextController.newInstance(), port, null);
+	}
+	
 	/**
 	 * Creates a new secured endpoint configuration.
 	 * 
@@ -35,13 +39,17 @@ public class EndpointConfiguration {
 	 * @param sslContext The SSL context that should be used to secure this endpoint.
 	 */
 	public EndpointConfiguration(EndpointType type, int port, SSLContext sslContext) {
+		this(type, ContextController.newInstance(), port, sslContext);
+	}
+	
+	public EndpointConfiguration(EndpointType type, ContextController ctxController, int port, SSLContext sslContext) {
 		this.port = port;
 		this.type = type;
-		if (sslContext != null ) {
+		if (sslContext != null) {
 			this.sslContext = sslContext;
 			secure = true;
 		}
-		controller = ContextController.newInstance();
+		controller = ctxController;
 	}
 	
 	/**

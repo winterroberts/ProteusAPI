@@ -14,16 +14,14 @@ import net.aionstudios.proteus.configuration.EndpointConfiguration;
 public class RouterBuilder {
 
 	private Set<Hostname> hosts;
-	private EndpointConfiguration endpoint;
 	
 	/**
 	 * Creates a new router builder based on the provided configuration.
 	 * 
 	 * @param ec The {@link EndpointConfiguration} to construct this router builder from.
 	 */
-	public RouterBuilder(EndpointConfiguration ec) {
+	public RouterBuilder() {
 		hosts = new HashSet<>();
-		endpoint = ec;
 	}
 	
 	/**
@@ -38,14 +36,14 @@ public class RouterBuilder {
 	}
 	
 	/**
-	 * @return The {@link Router} that has been built.
+	 * @return The {@link Router}s that have been built.
 	 */
-	public Router build() {
+	public Router build(EndpointConfiguration ec) {
 		Set<Hostname> hosts = new HashSet<>();
 		for (Hostname h : this.hosts) {
 			hosts.add(h);
 		}
-		return new Router(hosts, endpoint);
+		return new Router(hosts, ec);
 	}
 	
 }
