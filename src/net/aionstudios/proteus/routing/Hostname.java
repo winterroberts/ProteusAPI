@@ -9,6 +9,8 @@ package net.aionstudios.proteus.routing;
 public class Hostname {
 	
 	public static Hostname ANY = new Hostname("*");
+	public static Hostname LOOPBACK = new Hostname("127.0.0.1");
+	public static Hostname LOCALHOST = new Hostname("localhost");
 	
 	private String host;
 	

@@ -114,7 +114,7 @@ public class CompositeRouter {
 		if (hostMap.containsKey(host)) {
 			return hostMap.get(host).getHttpRoute(host, path);
 		}
-		return null;
+		return getHttpWildcard(path);
 	}
 	
 	/**
@@ -128,7 +128,7 @@ public class CompositeRouter {
 		if (hostMap.containsKey(host)) {
 			return hostMap.get(host).getWebSocketRoute(host, path);
 		}
-		return null;
+		return getWebSocketWildcard(path);
 	}
 	
 	/**
@@ -137,7 +137,7 @@ public class CompositeRouter {
 	 * @param path The path of the request.
 	 * @return The first matching {@link HttpRoute} or null if none exist.
 	 */
-	public HttpRoute getHttpWilcard(String path) {
+	public HttpRoute getHttpWildcard(String path) {
 		if (hostMap.containsKey(Hostname.ANY)) {
 			return hostMap.get(Hostname.ANY).getHttpRoute(Hostname.ANY, path);
 		}
