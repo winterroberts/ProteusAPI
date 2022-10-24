@@ -1,7 +1,7 @@
 package net.aionstudios.proteus.api.request;
 
 import net.aionstudios.proteus.api.websocket.ClosingCode;
-import net.aionstudios.proteus.api.websocket.WebSocketFrame;
+import net.aionstudios.proteus.api.websocket.ServerFrame;
 import net.aionstudios.proteus.api.websocket.WebSocketState;
 import net.aionstudios.proteus.routing.Hostname;
 
@@ -30,9 +30,9 @@ public interface ProteusWebSocketConnection {
 	 * Queues reply frams in-order. This may be a blocking operation while waiting on other threads.
 	 * Note: Read from this queue is non-blocking.
 	 * 
-	 * @param frames {@link WebSocketFrame}(s) to be queued (in order) for reply.
+	 * @param frames {@link ServerFrame}(s) to be queued (in order) for reply.
 	 */
-	public void queueFrames(WebSocketFrame... frames);
+	public void queueFrames(ServerFrame... frames);
 	
 	/**
 	 * Enqueues a new normal closing operation on this connection, changing the {@link WebSocketState} to CLOSING.

@@ -23,7 +23,7 @@ public @interface ProteusContext {
 	/**
 	 * @return The path string(s) for this context, which will be converted to a {@link PathInterpreter}.
 	 */
-	String[] path();
+	String[] path() default "/";
 	/**
 	 * @return Whether or not the annotated {@link ProteusHttpContext}/{@link ProteusWebSocketContext} should retain
 	 * existing path information or be overriden by the annotation.
