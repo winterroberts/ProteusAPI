@@ -3,7 +3,6 @@ package net.aionstudios.proteus.api.request;
 import net.aionstudios.proteus.api.websocket.ClosingCode;
 import net.aionstudios.proteus.api.websocket.WebSocketFrame;
 import net.aionstudios.proteus.api.websocket.WebSocketState;
-import net.aionstudios.proteus.routing.Hostname;
 
 /**
  * Manages a client connection to the internal web socket server.
@@ -53,13 +52,8 @@ public interface ProteusWebSocketConnection {
 	public boolean tryStart();
 	
 	/**
-	 * @return The {@link Hostname} (from the initial request) of this connection.
+	 * @return The {@link ProteusWebSocketRequest} (from the initial request) of this connection.
 	 */
-	public Hostname getHost();
-	
-	/**
-	 * @return The path specified by the initial request.
-	 */
-	public String getPath();
+	public ProteusWebSocketRequest getRequest();
 
 }

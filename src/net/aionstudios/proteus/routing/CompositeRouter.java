@@ -1,7 +1,13 @@
 package net.aionstudios.proteus.routing;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import net.aionstudios.proteus.configuration.EndpointType;
 
@@ -17,7 +23,17 @@ public class CompositeRouter {
 	private int port = -1;
 	
 	private EndpointType et;
+	
+	private SSLServerSocketFactory sslFactory;
 
+	/**
+	 * Creates an empty secure composite router.
+	 */
+	public CompositeRouter(SSLServerSocketFactory sslFactory) {
+		hostMap = new HashMap<>();
+		this.sslFactory = sslFactory;
+	}
+	
 	/**
 	 * Creates an empty composite router.
 	 */
@@ -38,6 +54,18 @@ public class CompositeRouter {
 	}
 	
 	/**
+	 * Creates a secure composite router which consists of the given router.
+	 * 
+	 * @param router1 A router.
+	 */
+	public CompositeRouter(SSLServerSocketFactory sslFactory, Router router1) {
+		this(sslFactory);
+		port = router1.getPort();
+		et = router1.getEndpoint().getType();
+		addRouter(router1);
+	}
+	
+	/**
 	 * Creates a composite router which consists of the given routers.
 	 * 
 	 * @param router1 The first router.
@@ -45,6 +73,19 @@ public class CompositeRouter {
 	 */
 	public CompositeRouter(Router router1, Router... router2) {
 		this(router1);
+		for (Router r : router2) {
+			addRouter(r);
+		}
+	}
+	
+	/**
+	 * Creates a secure composite router which consists of the given routers.
+	 * 
+	 * @param router1 The first router.
+	 * @param router2 One or more routers.
+	 */
+	public CompositeRouter(SSLServerSocketFactory sslFactory, Router router1, Router... router2) {
+		this(sslFactory, router1);
 		for (Router r : router2) {
 			addRouter(r);
 		}
@@ -155,6 +196,23 @@ public class CompositeRouter {
 			return hostMap.get(Hostname.ANY).getWebSocketRoute(Hostname.ANY, path);
 		}
 		return null;
+	}
+	
+	public boolean isSecure() {
+		return sslFactory != null;
+	}
+	
+	public ServerSocket createSocket() throws IOException {
+		if (sslFactory != null) {
+			SSLServerSocket sslSocket = (SSLServerSocket) sslFactory.createServerSocket(port);
+			sslSocket.setUseClientMode(false);
+			sslSocket.setWantClientAuth(false);
+			sslSocket.setNeedClientAuth(false);
+			sslSocket.setEnabledCipherSuites(sslSocket.getSupportedCipherSuites());
+			sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
+			return sslSocket;
+		}
+		return new ServerSocket(port);
 	}
 
 }

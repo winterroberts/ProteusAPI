@@ -3,6 +3,9 @@ package net.aionstudios.proteus.routing;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+
 import net.aionstudios.proteus.api.context.ProteusHttpContext;
 import net.aionstudios.proteus.api.context.ProteusWebSocketContext;
 import net.aionstudios.proteus.configuration.EndpointConfiguration;
@@ -55,6 +58,13 @@ public class Router {
 	 */
 	public CompositeRouter toComposite() {
 		return new CompositeRouter(this);
+	}
+	
+	/**
+	 * @return A new {@link CompositeRouter} which contains this router.
+	 */
+	public CompositeRouter toComposite(SSLServerSocketFactory sslFactory) {
+		return new CompositeRouter(sslFactory, this);
 	}
 	
 	/**

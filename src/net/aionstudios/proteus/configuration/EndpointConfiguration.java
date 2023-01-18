@@ -12,8 +12,6 @@ public class EndpointConfiguration {
 	
 	private EndpointType type;
 	private int port;
-	private SSLContext sslContext;
-	private boolean secure;
 	
 	private ContextController controller;
 	
@@ -24,31 +22,12 @@ public class EndpointConfiguration {
 	 * @param port The port this endpoint should open at.
 	 */
 	public EndpointConfiguration(EndpointType type, int port) {
-		this(type, port, null);
+		this(type, ContextController.newInstance(), port);
 	}
 	
 	public EndpointConfiguration(EndpointType type, ContextController ctxController, int port) {
-		this(type, ContextController.newInstance(), port, null);
-	}
-	
-	/**
-	 * Creates a new secured endpoint configuration.
-	 * 
-	 * @param type The {@link EndpointType} of this endpoint, which indicates HTTP, WebSocket, or both.
-	 * @param port The port this endpoint should open at.
-	 * @param sslContext The SSL context that should be used to secure this endpoint.
-	 */
-	public EndpointConfiguration(EndpointType type, int port, SSLContext sslContext) {
-		this(type, ContextController.newInstance(), port, sslContext);
-	}
-	
-	public EndpointConfiguration(EndpointType type, ContextController ctxController, int port, SSLContext sslContext) {
 		this.port = port;
 		this.type = type;
-		if (sslContext != null) {
-			this.sslContext = sslContext;
-			secure = true;
-		}
 		controller = ctxController;
 	}
 	
@@ -85,20 +64,6 @@ public class EndpointConfiguration {
 	 */
 	public int getPort() {
 		return port;
-	}
-	
-	/**
-	 * @return The {@link SSLContext} used by this endpoint to secure connections, which may be null.
-	 */
-	public SSLContext getSslContext() {
-		return sslContext;
-	}
-	
-	/**
-	 * @return True is there is an {@link SSLContext} indicated for use by this endpoint, false otherwise.
-	 */
-	public boolean isSecure() {
-		return secure;
 	}
 
 }
