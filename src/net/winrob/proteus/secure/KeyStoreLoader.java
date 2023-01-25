@@ -44,7 +44,7 @@ public class KeyStoreLoader {
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
 		tmf.init(keystore);
 		
-		SSLContext sslContext = SSLContext.getInstance("TLS");
+		SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 		sslContext.init(kmf.getKeyManagers(), null, null);
 		
 		if (!validateCertificatePath(keystore)) {

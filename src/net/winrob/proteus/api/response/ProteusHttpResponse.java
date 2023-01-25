@@ -1,5 +1,7 @@
 package net.winrob.proteus.api.response;
 
+import java.io.InputStream;
+
 /**
  * Used to stage header and body information which will be returned to the client
  * 
@@ -14,6 +16,8 @@ public interface ProteusHttpResponse {
 	 * @param response The response data.
 	 */
 	public void sendResponse(byte[] response);
+	
+	public void sendResponse(InputStream response);
 	
 	/**
 	 * Sends the response string with the 200 (OK) status code.
@@ -37,6 +41,8 @@ public interface ProteusHttpResponse {
 	 * @param response The response data.
 	 */
 	public void sendResponse(ResponseCode responseCode, byte[] response);
+	
+	public void sendResponse(ResponseCode responseCode, InputStream response);
 	
 	/**
 	 * Sets the "Last-Modified" time of the resource, which may be now or last edit.
