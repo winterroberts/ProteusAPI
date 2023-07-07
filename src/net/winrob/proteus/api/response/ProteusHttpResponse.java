@@ -2,6 +2,8 @@ package net.winrob.proteus.api.response;
 
 import java.io.InputStream;
 
+import net.winrob.proteus.header.ProteusHeaderBuilder;
+
 /**
  * Used to stage header and body information which will be returned to the client
  * 
@@ -43,6 +45,12 @@ public interface ProteusHttpResponse {
 	public void sendResponse(ResponseCode responseCode, byte[] response);
 	
 	public void sendResponse(ResponseCode responseCode, InputStream response);
+	
+	public void sendResponse(ResponseCode responseCode, InputStream response, boolean ignoreCompressionDirective);
+	
+	public void error(ResponseCode code);
+	
+	public ProteusHeaderBuilder getHeaderBuilder();
 	
 	/**
 	 * Sets the "Last-Modified" time of the resource, which may be now or last edit.

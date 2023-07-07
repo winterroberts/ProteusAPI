@@ -1,5 +1,6 @@
 package net.winrob.proteus.api.request;
 
+import net.winrob.commons.saon.EventDispatcher;
 import net.winrob.proteus.api.context.ProteusHttpContext;
 import net.winrob.proteus.header.ProteusHttpHeaders;
 import net.winrob.proteus.routing.CompositeRouter;
@@ -64,6 +65,10 @@ public interface ProteusHttpRequest {
 	 * @return The {@link PathComprehension} with variable and resolution information from the {@link HttpRoute} discovered, or null if no route was found.
 	 */
 	public PathComprehension getPathComprehension();
+	
+	public String getPath();
+	
+	public EventDispatcher getEventDispatcher();
 	
 	/**
 	 * @return True if the path was accepted by the {@link CompositeRouter} on the specified endpoint, false otherwise.

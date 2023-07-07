@@ -16,15 +16,21 @@ public class PathComprehension {
 	private ParameterMap<String> pathParams;
 	
 	private String path;
+	private String child;
 
 	protected PathComprehension(PathInterpreter interpreter, String path) {
 		this(interpreter, path, new ParameterMap<>(new HashMap<>()));
 	}
 	
 	protected PathComprehension(PathInterpreter interpreter, String path, ParameterMap<String> pathParams) {
+		if (path == null) path = "";
 		this.interpreter = interpreter;
 		this.path = path;
 		this.pathParams = pathParams;
+	}
+	
+	protected void setChild(String child) {
+		this.child = child;
 	}
 	
 	/**
@@ -46,6 +52,10 @@ public class PathComprehension {
 	 */
 	public String getPath() {
 		return path;
+	}
+	
+	public String getChild() {
+		return child;
 	}
 	
 }

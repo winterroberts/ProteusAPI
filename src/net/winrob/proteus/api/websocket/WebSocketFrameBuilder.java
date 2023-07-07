@@ -3,7 +3,6 @@ package net.winrob.proteus.api.websocket;
 import java.nio.ByteBuffer;
 
 import net.winrob.proteus.api.request.ProteusWebSocketConnection;
-import net.winrob.proteus.api.websocket.WebSocketFrame.Callback;
 import net.winrob.proteus.util.StreamUtils;
 
 /**
@@ -19,7 +18,7 @@ public class WebSocketFrameBuilder {
 	
 	private OpCode opCode;
 	
-	private Callback callback = null;
+	private Runnable callback = null;
 
 	protected WebSocketFrameBuilder(OpCode opCode) {
 		byteBuffer = ByteBuffer.allocate(0);
@@ -66,7 +65,7 @@ public class WebSocketFrameBuilder {
 	 * Sets the callback to be used by the last frame built from this server frame builder.
 	 * @param callback The {@link Callback} which may be null.
 	 */
-	public void setCallback(Callback callback) {
+	public void setCallback(Runnable callback) {
 		this.callback = callback;
 	}
 	

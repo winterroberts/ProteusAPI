@@ -17,15 +17,13 @@ public class WebSocketFrame {
 	private byte[] payload;
 	private boolean finished;
 	
-	private Callback callback;
+	private Runnable callback;
 
 	protected WebSocketFrame(OpCode opCode, byte[] payload, boolean finished) {
-		this.opCode = opCode;
-		this.payload = payload;
-		this.finished = finished;
+		this(opCode, payload, finished, null);
 	}
 	
-	protected WebSocketFrame(OpCode opCode, byte[] payload, boolean finished, Callback callback) {
+	protected WebSocketFrame(OpCode opCode, byte[] payload, boolean finished, Runnable callback) {
 		this.opCode = opCode;
 		this.payload = payload;
 		this.finished = finished;
@@ -43,7 +41,7 @@ public class WebSocketFrame {
 	 * Calls the callback function (after this frame is sent).
 	 */
 	public void callback() {
-		if (callback != null) callback.call();
+		if (callback != null) callback.run();
 	}
 	
 	/**
@@ -90,9 +88,8 @@ public class WebSocketFrame {
 	 * @param callback The callback (or null) to be called after this frame is sent.
 	 * @return A closing server frame.
 	 */
-	public static WebSocketFrame closingFrame(ClosingCode code, String message, Callback callback) {
+	public static WebSocketFrame closingFrame(ClosingCode code, String message, Runnable callback) {
 		message = message == null ? "" : message;
-		callback = callback == null ? Callback.NULL : callback;
 		byte[] pMessage = message.getBytes(StandardCharsets.UTF_8);
 		if (pMessage.length > ProteusWebSocketConnection.FRAME_MAX - 2) {
 			throw new IllegalArgumentException("Closing message (size " + (pMessage.length + 2) + ") exceeds maximum frame size!");
@@ -104,15 +101,26 @@ public class WebSocketFrame {
 	}
 	
 	/**
+	 * Creates a new closing server frame.
+	 * 
+	 * @param code The {@link ClosingCode} to be used.
+	 * @param message The closing reason message.
+	 * @param callback The callback (or null) to be called after this frame is sent.
+	 * @return A closing server frame.
+	 */
+	public static WebSocketFrame closingFrame(ClosingCode code, String message) {
+		return closingFrame(code, message, null);
+	}
+	
+	/**
 	 * Creates a new ping server frame.
 	 * 
 	 * @param message The ping message.
 	 * @param callback The callback (or null) to be called after this frame is sent.
 	 * @return A ping server frame.
 	 */
-	public static WebSocketFrame pingFrame(String message, Callback callback) {
+	public static WebSocketFrame pingFrame(String message, Runnable callback) {
 		message = message == null ? "" : message;
-		callback = callback == null ? Callback.NULL : callback;
 		byte[] payload = message.getBytes(StandardCharsets.UTF_8);
 		if (payload.length > 125) {
 			throw new IllegalArgumentException("Ping message (size " + payload.length + ") exceeds control frame size!");
@@ -127,38 +135,13 @@ public class WebSocketFrame {
 	 * @param callback The callback (or null) to be called after this frame is sent.
 	 * @return A pong server frame.
 	 */
-	public static WebSocketFrame pongFrame(String message, Callback callback) {
+	public static WebSocketFrame pongFrame(String message, Runnable callback) {
 		message = message == null ? "" : message;
-		callback = callback == null ? Callback.NULL : callback;
 		byte[] payload = message.getBytes(StandardCharsets.UTF_8);
 		if (payload.length > 125) {
 			throw new IllegalArgumentException("Pong message (size " + payload.length + ") exceeds control frame size!");
 		}
 		return new WebSocketFrame(OpCode.PONG, payload, true, callback);
-	}
-
-	/**
-	 * A class intended to call the function within it after another task is completed.
-	 * 
-	 * @author Winter Roberts
-	 *
-	 */
-	public interface Callback {
-		
-		public static Callback NULL = new Callback() {
-
-			@Override
-			public void call() {
-				// do nothing
-			}
-			
-		};
-
-		/**
-		 * The method that will be run after the previous task, which accepts a {@link Callback}, is run.
-		 */
-		public void call();
-		
 	}
 
 	

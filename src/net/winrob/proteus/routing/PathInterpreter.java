@@ -21,12 +21,18 @@ public class PathInterpreter {
 	
 	private Map<Integer, String> pathParams;
 	
+	private boolean matchChildren;
+	
+	public PathInterpreter(String path) {
+		this(path, false);
+	}
+	
 	/**
 	 * Creates a new path interpreter.
 	 * 
 	 * @param path The {@link PathComponent} form description for this path.
 	 */
-	public PathInterpreter(String path) {
+	public PathInterpreter(String path, boolean matchChildren) {
 		components = new LinkedList<>();
 		String[] comps = splitPath(path);
 		pathParams = new HashMap<>();
@@ -39,6 +45,7 @@ public class PathInterpreter {
 			}
 			i++;
 		}
+		this.matchChildren = matchChildren;
 	}
 	
 	/**
@@ -47,7 +54,7 @@ public class PathInterpreter {
 	 */
 	public boolean matches(String path) {
 		String[] parts = splitPath(path);
-		if (components.size() == parts.length) {
+		if (components.size() == parts.length || (parts.length > components.size() && matchChildren)) {
 			for (int i = 0; i < components.size(); i++) {
 				if (!components.get(i).matches(parts[i])) return false;
 			}
@@ -66,12 +73,21 @@ public class PathInterpreter {
 		Map<String, String> params = new HashMap<>();
 		String[] parts = splitPath(path);
 		if (matches(path)) {
-			for (int i = 0; i < components.size(); i++) {
+			int i;
+			for (i = 0; i < components.size(); i++) {
 				if (components.get(i).isPathParam()) {
 					params.put(pathParams.get(i), URLDecoder.decode(parts[i], StandardCharsets.UTF_8));
 				}
 			}
-			return new PathComprehension(this, path, new ParameterMap<>(params));
+			String child = "";
+			if (matchChildren) {
+				for (;i < parts.length; i++) {
+					child += "/" + parts[i];
+				}
+			}
+			PathComprehension comp = new PathComprehension(this, path, new ParameterMap<>(params));
+			comp.setChild(child);
+			return comp;
 		}
 		return null;
 	}
