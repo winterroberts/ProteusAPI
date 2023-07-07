@@ -50,6 +50,10 @@ public interface ProteusHttpResponse {
 	
 	public void error(ResponseCode code);
 	
+	public void error(ResponseCode code, String message);
+	
+	public void error(ResponseCode code, byte[] message);
+	
 	public ProteusHeaderBuilder getHeaderBuilder();
 	
 	/**
