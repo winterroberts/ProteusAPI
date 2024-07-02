@@ -34,17 +34,14 @@ import javax.net.ssl.X509TrustManager;
 
 public class KeyStoreLoader {
 	
-	public static SSLServerSocketFactory loadKeyStoreToSocketFactory(File jks, String storepass, String keypass, String caAlias) throws NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException, InvalidAlgorithmParameterException {
+	public static SSLServerSocketFactory loadKeyStoreToSSLSocketFactory(File jks, String storepass, String keypass, String caAlias) throws NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException, KeyStoreException, UnrecoverableKeyException, KeyManagementException, InvalidAlgorithmParameterException {
 		KeyStore keystore = KeyStore.getInstance("JKS");
 		keystore.load(new FileInputStream(jks), storepass.toCharArray());
 		
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 		kmf.init(keystore, keypass.toCharArray());
 		
-		TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-		tmf.init(keystore);
-		
-		SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+		SSLContext sslContext = SSLContext.getInstance("TLSv1.3");
 		sslContext.init(kmf.getKeyManagers(), null, null);
 		
 		if (!validateCertificatePath(keystore)) {
@@ -76,6 +73,7 @@ public class KeyStoreLoader {
 		try {
 			validator.validate(CertificateFactory.getInstance("X509").generateCertPath(certs), params);
 		} catch (CertPathValidatorException e) {
+			System.err.println(e.getMessage());
 			return false;
 		}
 		return true;

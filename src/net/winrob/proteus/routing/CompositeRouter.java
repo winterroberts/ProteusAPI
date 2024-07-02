@@ -2,9 +2,14 @@ package net.winrob.proteus.routing;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -22,7 +27,7 @@ public class CompositeRouter {
 	private Map<Hostname, Router> hostMap;
 	private int port = -1;
 	
-	private EndpointType et;
+	private Set<EndpointType> ets;
 	
 	private SSLServerSocketFactory sslFactory;
 
@@ -30,7 +35,7 @@ public class CompositeRouter {
 	 * Creates an empty secure composite router.
 	 */
 	public CompositeRouter(SSLServerSocketFactory sslFactory) {
-		hostMap = new HashMap<>();
+		this();
 		this.sslFactory = sslFactory;
 	}
 	
@@ -39,6 +44,7 @@ public class CompositeRouter {
 	 */
 	public CompositeRouter() {
 		hostMap = new HashMap<>();
+		ets = new HashSet<>();
 	}
 	
 	/**
@@ -49,7 +55,6 @@ public class CompositeRouter {
 	public CompositeRouter(Router router1) {
 		this();
 		port = router1.getPort();
-		et = router1.getEndpoint().getType();
 		addRouter(router1);
 	}
 	
@@ -61,7 +66,6 @@ public class CompositeRouter {
 	public CompositeRouter(SSLServerSocketFactory sslFactory, Router router1) {
 		this(sslFactory);
 		port = router1.getPort();
-		et = router1.getEndpoint().getType();
 		addRouter(router1);
 	}
 	
@@ -118,9 +122,7 @@ public class CompositeRouter {
 			if (port < 0) {
 				port = router.getPort();
 			}
-			if (router.getEndpoint().getType() != et) {
-				et = EndpointType.MIXED;
-			}
+			ets.addAll(router.getEndpoint().getTypes());
  			hostMap.put(host, router);
 		}
 		return true;
@@ -133,8 +135,8 @@ public class CompositeRouter {
 	/**
 	 * @return the {@link EndpointType} of this router, which may not describe the behavior of indivdual routes.
 	 */
-	public EndpointType getType() {
-		return et;
+	public Set<EndpointType> getTypes() {
+		return ets;
 	}
 	
 	/**
@@ -205,11 +207,6 @@ public class CompositeRouter {
 	public ServerSocket createSocket() throws IOException {
 		if (sslFactory != null) {
 			SSLServerSocket sslSocket = (SSLServerSocket) sslFactory.createServerSocket(port);
-			sslSocket.setUseClientMode(false);
-			sslSocket.setWantClientAuth(false);
-			sslSocket.setNeedClientAuth(false);
-			sslSocket.setEnabledCipherSuites(sslSocket.getSupportedCipherSuites());
-			sslSocket.setEnabledProtocols(sslSocket.getSupportedProtocols());
 			return sslSocket;
 		}
 		return new ServerSocket(port);

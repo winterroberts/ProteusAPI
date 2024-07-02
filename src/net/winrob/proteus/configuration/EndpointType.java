@@ -8,34 +8,18 @@ package net.winrob.proteus.configuration;
  */
 public enum EndpointType {
 	
-	HTTP(true, false),
-	WEBSOCKET(false, true),
-	MIXED(true, true);
+	HTTP1_1("HTTP/1.1"),
+	HTTP2("HTTP/2"),
+	WEBSOCKET("WebSocket");
 	
-	private boolean http;
-	private boolean webSocket;
+	private String protocolName;
 	
-	private EndpointType(boolean http, boolean webSocket) {
-		this.http = http;
-		this.webSocket = webSocket;
+	private EndpointType(String protocolName) {
+		this.protocolName = protocolName;
 	}
 	
-	public String toString() {
-		return http ? (webSocket ? "mixed traffic" : "http") : (webSocket ? "web socket" : "ERRANT");
-	}
-	
-	/**
-	 * @return True if this endpoint type indicates HTTP support, false otherwise.
-	 */
-	public boolean isHttp() {
-		return http;
-	}
-	
-	/**
-	 * @return True if this endpoint type indicates WebSocket support, false otherwise.
-	 */
-	public boolean isWebSocket() {
-		return webSocket;
+	public String getProtocolName() {
+		return protocolName;
 	}
 
 }

@@ -1,5 +1,7 @@
 package net.winrob.proteus.configuration;
 
+import java.util.Set;
+
 import javax.net.ssl.SSLContext;
 
 /**
@@ -10,7 +12,7 @@ import javax.net.ssl.SSLContext;
  */
 public class EndpointConfiguration {
 	
-	private EndpointType type;
+	private Set<EndpointType> types;
 	private int port;
 	
 	private ContextController controller;
@@ -21,21 +23,21 @@ public class EndpointConfiguration {
 	 * @param type The {@link EndpointType} of this endpoint, which indicates HTTP, WebSocket, or both.
 	 * @param port The port this endpoint should open at.
 	 */
-	public EndpointConfiguration(EndpointType type, int port) {
-		this(type, ContextController.newInstance(), port);
+	public EndpointConfiguration(int port, Set<EndpointType> types) {
+		this(ContextController.newInstance(), port, types);
 	}
 	
-	public EndpointConfiguration(EndpointType type, ContextController ctxController, int port) {
+	public EndpointConfiguration(ContextController ctxController, int port, Set<EndpointType> types) {
 		this.port = port;
-		this.type = type;
+		this.types = types;
 		controller = ctxController;
 	}
 	
 	/**
 	 * @return The {@link EndpointType} of this endpoint.
 	 */
-	public EndpointType getType() {
-		return type;
+	public Set<EndpointType> getTypes() {
+		return types;
 	}
 	
 	/**
@@ -49,14 +51,22 @@ public class EndpointConfiguration {
 	 * @return True if the {@link EndpointType} used to instantiate this endpoint indicated HTTP server is enabled, false otherwise.
 	 */
 	public boolean isHttp() {
-		return type.isHttp();
+		return this.isHttp11() || this.isHttp2();
+	}
+	
+	public boolean isHttp11() {
+		return types.contains(EndpointType.HTTP1_1);
+	}
+	
+	public boolean isHttp2() {
+		return types.contains(EndpointType.HTTP2);
 	}
 	
 	/**
 	 * @return True if the {@link EndpointType} used to instantiate this endpoint indicated WebSocket server is enabled, false otherwise.
 	 */
 	public boolean isWebSocket() {
-		return type.isWebSocket();
+		return types.contains(EndpointType.WEBSOCKET);
 	}
 	
 	/**
